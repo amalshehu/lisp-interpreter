@@ -6,11 +6,12 @@ let reader = readline.createInterface({
   terminal: true
 })
 reader.on('line', line => {
-  let program = line
-    .replace('(', ' ( ')
-    .replace(')', ' ) ')
-    .split('')
-  console.log(program)
-
+  console.log(tokenize(line))
   reader.close()
 })
+
+const tokenize = program =>
+  program
+    .replace('(', ' ( ')
+    .replace(')', ' ) ')
+    .split(' ')

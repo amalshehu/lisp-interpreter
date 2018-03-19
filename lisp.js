@@ -23,14 +23,27 @@ const space = str => {
     : null
 }
 
-const parse = tokens => {
+export const expressionEvaluator = p => {
+  return code => {
+    if (code === undefined) return null
+    let fetched
+    for (let parser of p) {
+      fetched = parser(code)
+      if (fetched != null) {
+        return fetched
+      }
+    }
+    return null
+  }
+}
+
+const parse = program => {
   parsed = []
-  if (tokens[0] != '(') return null
-  tokens.shift()
-  while (tokens[0] != ')') {
-    parsed.push(tokens[0])
-    tokens.shift()
+  if (program[0] != '(') return null
+  program.slice(1)
+  while (program[0] != ')') {
+    space(program) ? (program = space(program)[1]) : program
   }
   console.log('Parsed', parsed)
 }
-parse(tokenize('(define square (lambda(x)(x * x)))'))
+parse('(define x 100))')

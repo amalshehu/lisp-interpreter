@@ -62,4 +62,17 @@ const stringx = str => {
     : null
 }
 
-console.log(stringx('"+ 1 2 3)"'))
+const nativeFunctions = {
+  '+': (a, b) => a + b,
+  '-': (a, b) => a - b,
+  '/': (a, b) => a / b,
+  '*': (a, b) => a * b,
+  '<': (a, b) => a < b,
+  '>': (a, b) => a > b,
+  '<=': (a, b) => a <= b,
+  '>=': (a, b) => a >= b,
+  '==': (a, b) => a == b,
+  '===': (a, b) => a == b
+}
+
+console.log([6, 6].reduce(nativeFunctions['==']))

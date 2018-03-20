@@ -89,8 +89,8 @@ const parseExpr = code => {
       code = factoryOut[1]
     }
     if (!code.includes(')')) throw Error('Expected closing.')
-    if (code === ')') {
-      return evaluateExpr(box)
+    if (code.startsWith(')')) {
+      return [evaluateExpr(box), code.slice(1)]
     }
   }
   return [box, code.slice(1)]

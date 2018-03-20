@@ -10,23 +10,6 @@
 
 let ENV = {}
 
-{
-  //Dont open
-  // let numArray = []
-  // const numberEvaluator = code => {
-  //   token = code.substr(0, code.indexOf(' '))
-  //   if (!isFinite(token)) return null
-  //   if (code === ')') {
-  //     return [numArray, code]
-  //   }
-  //   parseNumbers = number(code)
-  //   numArray.push(parseNumbers[0])
-  //   code = parseNumbers[1]
-  //   space(code) ? (code = space(code)[1]) : code
-  //   return numberEvaluator(code)
-  // }
-}
-
 const skipSpace = str => {
   const spaceRe = /^\s+|\s+$/
   let match

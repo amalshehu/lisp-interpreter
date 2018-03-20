@@ -1,16 +1,17 @@
-let REPL = require('repl')
+// let REPL = require('repl')
 
-REPL.start({
-  prompt: '>>> ',
-  ignoreUndefined: true,
-  eval: (expr, context, filename, callback) => {
-    callback(null, lisp(expr))
-  }
-})
+// REPL.start({
+//   prompt: '>>> ',
+//   ignoreUndefined: true,
+//   eval: (expr, context, filename, callback) => {
+//     callback(null, lisp(expr))
+//   }
+// })
 
 let ENV = {}
 
-{ //Dont open
+{
+  //Dont open
   // let numArray = []
   // const numberEvaluator = code => {
   //   token = code.substr(0, code.indexOf(' '))
@@ -26,14 +27,13 @@ let ENV = {}
   // }
 }
 
-
 const skipSpace = str => {
   const spaceRe = /^\s+|\s+$/
   let match
-  return (str && str.startsWith(' ')) || (str && str.startsWith('\n')) ?
-    ((match = str.match(spaceRe)),
-      match ? [match[0], str.replace(spaceRe, '')] : null) :
-    null
+  return (str && str.startsWith(' ')) || (str && str.startsWith('\n'))
+    ? ((match = str.match(spaceRe)),
+      match ? [match[0], str.replace(spaceRe, '')] : null)
+    : null
 }
 
 const number = str => {
@@ -45,10 +45,21 @@ const number = str => {
   return null
 }
 
-const operator = (code) => {
+const operator = code => {
   const opRe = /^(\+|-|\*|\/|=|>|<|>=|<=)/
   let match = code.match(opRe)
   return match ? [match[0], code.replace(opRe, '')] : null
 }
 
-console.log(operator('+ 1 2 3)'))
+const stringx = str => {
+  let match
+  const stringRe = /^"(?:\\"|.)*?"/
+  return str.startsWith('"')
+    ? ((match = str.match(stringRe)),
+      match && match[0] != undefined
+        ? [match[0], str.replace(match[0], '')]
+        : SyntaxError('Syntax Error'))
+    : null
+}
+
+console.log(stringx('"+ 1 2 3)"'))

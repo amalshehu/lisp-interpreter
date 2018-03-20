@@ -75,4 +75,22 @@ const nativeFunctions = {
   '===': (a, b) => a == b
 }
 
+const evaluateExpr = code => {
+  if (code != undefined && !code.startsWith('(')) {
+    return null
+  }
+  let box = []
+  code = code.slice(1)
+  while (code[0] !== ')') {
+    skipSpace(code) ? (code = skipSpace(code)[1]) : code
+    const factoryOut = valueParser(code)
+    if (factoryOut) {
+      box.push(factoryOut[0])
+      code = factoryOut[1]
+    }
+    if (!code.includes(')')) throw Error('Expected closing.')
+    if (code === ')') return [box, code.slice(1)]
+  }
+  return [box, code.slice(1)]
+}
 console.log([6, 6].reduce(nativeFunctions['==']))

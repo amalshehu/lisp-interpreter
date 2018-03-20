@@ -51,13 +51,13 @@ const operator = code => {
   return match ? [match[0], code.replace(opRe, '')] : null
 }
 
-const stringx = str => {
+const stringx = code => {
   let match
-  const stringRe = /^"(?:\\"|.)*?"/
-  return str.startsWith('"')
-    ? ((match = str.match(stringRe)),
+  const strRe = /^"(?:\\"|.)*?"/
+  return code && code.startsWith('"')
+    ? ((match = code.match(strRe)),
       match && match[0] != undefined
-        ? [match[0], str.replace(match[0], '')]
+        ? [match[0], code.replace(match[0], '')]
         : SyntaxError('Syntax Error'))
     : null
 }
@@ -75,7 +75,7 @@ const nativeFunctions = {
   '===': (a, b) => a == b
 }
 
-const evaluateExpr = code => {
+const parseExpr = code => {
   if (code != undefined && !code.startsWith('(')) {
     return null
   }
@@ -89,8 +89,36 @@ const evaluateExpr = code => {
       code = factoryOut[1]
     }
     if (!code.includes(')')) throw Error('Expected closing.')
-    if (code === ')') return [box, code.slice(1)]
+    if (code === ')') {
+      return evaluateExpr(box)
+    }
   }
   return [box, code.slice(1)]
 }
-console.log([6, 6].reduce(nativeFunctions['==']))
+const evaluateExpr = code => {
+  const key = code[0]
+  code = code.slice(1)
+  return code.reduce(nativeFunctions[key])
+}
+const factory = parsers => {
+  return text => {
+    if (text === undefined) return null
+    let out
+    for (let parser of parsers) {
+      try {
+        out = parser(text)
+      } catch (error) {
+        console.log(error)
+      }
+      if (out != null) {
+        return out
+      }
+    }
+    return null
+  }
+}
+const parsers = [stringx, number, operator, parseExpr]
+
+const valueParser = factory(parsers)
+
+console.log(valueParser('(+ 1 2 3 (* 5 3))'))

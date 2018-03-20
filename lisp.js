@@ -45,7 +45,6 @@ const number = str => {
   return null
 }
 
-
 const operator = (code) => {
   const opRe = /^(\+|-|\*|\/|=|>|<|>=|<=)/
   let match = code.match(opRe)

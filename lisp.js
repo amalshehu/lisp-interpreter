@@ -4,7 +4,7 @@
 //   prompt: '>>> ',
 //   ignoreUndefined: true,
 //   eval: (expr, context, filename, callback) => {
-//     callback(null, lisp(expr))
+//     callback(null, valueParser(expr))
 //   }
 // })
 
@@ -13,10 +13,10 @@ let ENV = {}
 const skipSpace = str => {
   const spaceRe = /^\s+|\s+$/
   let match
-  return (str && str.startsWith(' ')) || (str && str.startsWith('\n'))
-    ? ((match = str.match(spaceRe)),
-      match ? [match[0], str.replace(spaceRe, '')] : null)
-    : null
+  return (str && str.startsWith(' ')) || (str && str.startsWith('\n')) ?
+    ((match = str.match(spaceRe)),
+      match ? [match[0], str.replace(spaceRe, '')] : null) :
+    null
 }
 
 const number = str => {
@@ -37,12 +37,11 @@ const operator = code => {
 const stringx = code => {
   let match
   const strRe = /^"(?:\\"|.)*?"/
-  return code && code.startsWith('"')
-    ? ((match = code.match(strRe)),
-      match && match[0] != undefined
-        ? [match[0], code.replace(match[0], '')]
-        : SyntaxError('Syntax Error'))
-    : null
+  return code && code.startsWith('"') ?
+    ((match = code.match(strRe)),
+      match && match[0] != undefined ? [match[0], code.replace(match[0], '')] :
+      SyntaxError('Syntax Error')) :
+    null
 }
 
 const nativeFunctions = {
@@ -55,7 +54,7 @@ const nativeFunctions = {
   '<=': (a, b) => a <= b,
   '>=': (a, b) => a >= b,
   '==': (a, b) => a == b,
-  '===': (a, b) => a == b
+  '===': (a, b) => a === b
 }
 
 const parseExpr = code => {
@@ -81,6 +80,9 @@ const parseExpr = code => {
 const evaluateExpr = code => {
   const key = code[0]
   code = code.slice(1)
+  if (code.length == 1 && key == '-') {
+    return parseFloat(`${key}${code[0]}`)
+  }
   return code.reduce(nativeFunctions[key])
 }
 const factory = parsers => {
@@ -104,4 +106,4 @@ const parsers = [stringx, number, operator, parseExpr]
 
 const valueParser = factory(parsers)
 
-console.log(valueParser('(+ 1 2 3 (* 5 3))'))
+console.log(valueParser('(+ 10 20 (+ 5 3)(- 30))'))

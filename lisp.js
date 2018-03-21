@@ -34,7 +34,17 @@ const stringx = code => {
         : SyntaxError('Syntax Error'))
     : null
 }
+const ifx = code => {
+  if (!code.slice(1).startsWith('if')) return null
+  else {
+    code = code.slice(3)
+    skipSpace(code) ? (code = skipSpace(code)[1]) : code
+    let match = code.split(/(\(.+?\))/)
+    console.log(match)
 
+    // return valueParser(match[0]) ? valueParser(match[1]) : valueParser(match[2])
+  }
+}
 const nativeFunctions = {
   '+': (a, b) => a + b,
   '-': (a, b) => a - b,
@@ -94,8 +104,7 @@ const factory = parsers => {
     return null
   }
 }
-const parsers = [stringx, number, operator, parseExpr]
+const valueParser = factory([stringx, number, operator, parseExpr])
+const splValueParser = factory([ifx])
 
-const valueParser = factory(parsers)
-
-console.log(valueParser('(+ 10 6)'))
+console.log(ifx('(if (> 10 20) (+ 1 1) (+ 3 3))'))

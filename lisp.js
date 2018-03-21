@@ -10,38 +10,29 @@
 
 let ENV = {}
 
-const skipSpace = str => {
-  const spaceRe = /^\s+|\s+$/
-  let match
-  return (str && str.startsWith(' ')) || (str && str.startsWith('\n')) ?
-    ((match = str.match(spaceRe)),
-      match ? [match[0], str.replace(spaceRe, '')] : null) :
-    null
+const skipSpace = code => {
+  let match = code.match(/^\s+/)
+  return match ? [match[0], code.replace(/^\s+/, '')] : null
 }
 
-const number = str => {
-  const numRe = /^[-+]?[0-9]*\.?[0-9]+([eE][-+]?[0-9]+)?/
-  let match = str.match(numRe)
-  if (match) {
-    return [parseFloat(match[0]), str.slice(match[0].length)]
-  }
-  return null
+const number = code => {
+  let match = code.match(/^[-+]?[0-9]*\.?[0-9]+([eE][-+]?[0-9]+)?/)
+  return match ? [parseFloat(match[0]), code.slice(match[0].length)] : null
 }
 
 const operator = code => {
-  const opRe = /^(\+|-|\*|\/|=|>|<|>=|<=)/
-  let match = code.match(opRe)
-  return match ? [match[0], code.replace(opRe, '')] : null
+  let match = code.match(/^(\+|-|\*|\/|=|>|<|>=|<=)/)
+  return match ? [match[0], code.slice(match[0].length)] : null
 }
 
 const stringx = code => {
   let match
-  const strRe = /^"(?:\\"|.)*?"/
-  return code && code.startsWith('"') ?
-    ((match = code.match(strRe)),
-      match && match[0] != undefined ? [match[0], code.replace(match[0], '')] :
-      SyntaxError('Syntax Error')) :
-    null
+  return code && code.startsWith('"')
+    ? ((match = code.match(/^"(?:\\"|.)*?"/)),
+      match && match[0] != undefined
+        ? [match[0].slice(1, -1), code.replace(match[0], '')]
+        : SyntaxError('Syntax Error'))
+    : null
 }
 
 const nativeFunctions = {
@@ -77,6 +68,7 @@ const parseExpr = code => {
   }
   return [box, code.slice(1)]
 }
+
 const evaluateExpr = code => {
   const key = code[0]
   code = code.slice(1)
@@ -106,4 +98,4 @@ const parsers = [stringx, number, operator, parseExpr]
 
 const valueParser = factory(parsers)
 
-console.log(valueParser('(+ 10 20 (+ 5 3)(- 30))'))
+console.log(valueParser('(+ 10 6)'))

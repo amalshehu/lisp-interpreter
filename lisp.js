@@ -20,8 +20,7 @@ const nativeFunctions = {
   condition: (a, b, c) => (a ? b : c),
   '<=': (a, b) => a <= b,
   '>=': (a, b) => a >= b,
-  '==': (a, b) => a == b,
-  '===': (a, b) => a === b
+  '=': (a, b) => a == b
 }
 
 const skipSpace = code => {
@@ -35,7 +34,9 @@ const extractNum = code => {
 }
 
 const extractOperator = code => {
-  let match = code.match(/^(\+|-|\*|\/|=|>|<|>=|<=)/)
+  let match = code.match(
+    /^(^(!=)?|^(<=)?|^(>=)?|^(=)|^([\+|\-|\*|\/])?|^(<)?|^(>)?)?/
+  )
   return match ? [match[0], code.slice(match[0].length)] : null
 }
 

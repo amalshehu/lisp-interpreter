@@ -48,24 +48,37 @@ const extractString = code => {
         : SyntaxError('Syntax Error'))
     : null
 }
+const conditionSplitter = code => {
+  let arr = []
+  const re = /\((?:[^)(]+|\((?:[^)(]+|\([^)(]*\))*\))*\)/
+  let i = 3
+  while (i != 0) {
+    let m = code.match(re)
+    arr.push(m[0])
+    code = code.slice(m[0].length)
+    i--
+  }
+  return arr
+}
 const extractIf = code => {
   if (!code.startsWith('if')) return null
   code = code.slice(2)
-  let ifArray = []
   skipSpace(code) ? (code = skipSpace(code)[1]) : code
-  while (!code.startsWith(')')) {
-    // const ifRe = /(\(.+?\))\s*(\(.+?\))\s*(\(.+?\))/
-    // let match = code.split(ifRe).filter(Boolean)
-    // console.log('m', match)
-
-    let value = valueParser(code)
-    if (value != null) {
-      ifArray.push(value[0])
-      code = value[1]
-      skipSpace(code) ? (code = skipSpace(code)[1]) : code
-    }
+  const ifAst = conditionSplitter(code)
+  let value
+  value = valueParser(ifAst[0])
+  code = code.replace(ifAst[0], '')
+  if (value[0]) {
+    value = valueParser(ifAst[1])[0]
+    code = code.replace(ifAst[1], '')
+    code = code.replace(ifAst[2], '')
+  } else {
+    value = valueParser(ifAst[2])[0]
+    code = code.replace(ifAst[1], '')
+    code = code.replace(ifAst[2], '')
   }
-  if (code.startsWith(')') && ifArray.length == 3) return [ifArray, code]
+  skipSpace(code) ? (code = skipSpace(code)[1]) : code
+  if (code.startsWith(')')) return [value, ')']
   return null
 }
 
@@ -89,7 +102,7 @@ const parseExpr = code => {
       } else [box, code.slice(1)]
     }
   }
-  return [box, code.slice(1)]
+  return [...box, code.slice(1)]
 }
 
 const evaluateExpr = code => {
@@ -130,8 +143,7 @@ const valueParser = factory([
 
 console.log(
   JSON.stringify(
-    valueParser(
-      '(if (< 2 5) (if (> 20 10) (+ 1 1) (+ 3 3)) (if (> 20 10) (+ 1 1) (+ 3 3)))'
-    )
+    valueParser('(if (> 10 20) (+ 2 1) (+ 2 3)) (if (< 10 20) (+ 1 8) (+ 3 8))')
   )
 )
+// console.log(valueParser('(if (< 20 10) (+ 1 1) (+ 3 3))'))

@@ -103,7 +103,11 @@ const parseExpr = code => {
       } else [box, code.slice(1)]
     }
   }
-  return [...box, code.slice(1)]
+  if (code.slice(1) != '') {
+    code = code.slice(1)
+    skipSpace(code) ? (code = skipSpace(code)[1]) : code
+    return valueParser(code)
+  } else return [...box, code.slice(1)]
 }
 
 const evaluateExpr = code => {

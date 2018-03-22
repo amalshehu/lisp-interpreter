@@ -79,7 +79,7 @@ const extractIf = code => {
     code = code.replace(ifAst[2], '')
   }
   skipSpace(code) ? (code = skipSpace(code)[1]) : code
-  if (code.startsWith(')')) return [value, ')']
+  if (code.startsWith(')')) return [value, code]
   return null
 }
 

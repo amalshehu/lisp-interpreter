@@ -39,11 +39,12 @@ const extractOperator = code => {
 
 const extractString = code => {
   let match
-  return code && code.startsWith('"') ?
-    ((match = code.match(/^"(?:\\"|.)*?"/)),
-      match && match[0] != undefined ? [match[0].slice(1, -1), code.replace(match[0], '')] :
-      SyntaxError('Syntax Error')) :
-    null
+  return code && code.startsWith('"')
+    ? ((match = code.match(/^"(?:\\"|.)*?"/)),
+      match && match[0] != undefined
+        ? [match[0].slice(1, -1), code.replace(match[0], '')]
+        : SyntaxError('Syntax Error'))
+    : null
 }
 
 const conditionSplitter = code => {

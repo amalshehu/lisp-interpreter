@@ -68,6 +68,21 @@ const conditionSplitter = code => {
   }
   return arr
 }
+const extractDefine = code => {
+  if (!code.startsWith('define')) return null
+  code = code.slice(6)
+  skipSpace(code) ? (code = skipSpace(code)[1]) : code
+  const symbol = code.slice(0, code.indexOf(' '))
+  code = code.slice(symbol.length)
+  skipSpace(code) ? (code = skipSpace(code)[1]) : code
+  value = valueParser(code)
+  if (value) {
+    ENV[symbol] = value[0]
+    console.log(`value ${value[0]} assigned to ${symbol}`)
+  }
+  return [value[0], value[1]]
+}
+
 const extractIf = code => {
   if (!code.startsWith('if')) return null
   code = code.slice(2)
@@ -103,7 +118,6 @@ const parseExpr = code => {
       box.push(factoryOut[0])
       code = factoryOut[1]
     }
-    // if (!code.includes(')')) throw Error('Expected closing.')
     if (code.startsWith(')')) {
       if (nativeFunctions.hasOwnProperty(box[0])) {
         return [evaluateExpr(box), code.slice(1)]
@@ -138,7 +152,7 @@ const factory = parsers => {
         return out
       }
     }
-    return new SyntaxError('LISP : INVALID SYNTAX')
+    return null
   }
 }
 const valueParser = factory([
@@ -146,7 +160,8 @@ const valueParser = factory([
   extractString,
   extractNum,
   extractOperator,
-  extractIf
+  extractIf,
+  extractDefine
 ])
 
 // console.log(JSON.stringify(valueParser('(< 1 10)')))
@@ -170,4 +185,4 @@ const valueParser = factory([
 //   valueParser('(if (> 10 20) (+ 1 1) (+ 3 3)) (if (< 10 20) (+ 1 1) (+ 3 3))')
 // )
 // console.log(valueParser('(if (< 1 2) (if (< 2 1) (+ 1 1) (+ 3 3)) (+ 4 4))'))
-console.log(valueParser('(if (< 1 2) (if (< 2 1) (+ 1 2 3 4) (+ 3 3)))'))
+console.log(valueParser('(define x 10)'))

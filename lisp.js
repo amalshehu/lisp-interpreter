@@ -10,6 +10,20 @@
 
 let ENV = {}
 
+const nativeFunctions = {
+  '+': (a, b) => a + b,
+  '-': (a, b) => a - b,
+  '/': (a, b) => a / b,
+  '*': (a, b) => a * b,
+  '<': (a, b) => a < b,
+  '>': (a, b) => a > b,
+  condition: (a, b, c) => (a ? b : c),
+  '<=': (a, b) => a <= b,
+  '>=': (a, b) => a >= b,
+  '==': (a, b) => a == b,
+  '===': (a, b) => a === b
+}
+
 const skipSpace = code => {
   let match = code.match(/^\s+/)
   return match ? [match[0], code.replace(/^\s+/, '')] : null
@@ -37,32 +51,18 @@ const extractString = code => {
 const extractIf = code => {
   if (!code.startsWith('if')) return null
   code = code.slice(2)
+  let ifArray = []
   skipSpace(code) ? (code = skipSpace(code)[1]) : code
-  let value = valueParser(code)
-  if (value != null) {
-    skipSpace(code) ? (code = skipSpace(code)[1]) : code
-    const ifRe = /(\(.+?\))\s*(\(.+?\))\s*(\(.+?\))/
-    let match = code.split(ifRe).filter(Boolean)
-    return [
-      valueParser(match[0])[0]
-        ? valueParser(match[1])[[0]]
-        : valueParser(match[2])[0],
-      match[3]
-    ]
+  while (!code.startsWith(')')) {
+    let value = valueParser(code)
+    if (value != null) {
+      ifArray.push(value[0])
+      code = value[1]
+      skipSpace(code) ? (code = skipSpace(code)[1]) : code
+    }
   }
+  if (code.startsWith(')') && ifArray.length == 3) return [ifArray, code]
   return null
-}
-const nativeFunctions = {
-  '+': (a, b) => a + b,
-  '-': (a, b) => a - b,
-  '/': (a, b) => a / b,
-  '*': (a, b) => a * b,
-  '<': (a, b) => a < b,
-  '>': (a, b) => a > b,
-  '<=': (a, b) => a <= b,
-  '>=': (a, b) => a >= b,
-  '==': (a, b) => a == b,
-  '===': (a, b) => a === b
 }
 
 const parseExpr = code => {
@@ -80,7 +80,7 @@ const parseExpr = code => {
     }
     // if (!code.includes(')')) throw Error('Expected closing.')
     if (code.startsWith(')')) {
-      if (nativeFunctions.hasOwnProperty(factoryOut[0])) {
+      if (nativeFunctions.hasOwnProperty(box[0])) {
         return [evaluateExpr(box), code.slice(1)]
       } else [box, code.slice(1)]
     }
@@ -90,7 +90,7 @@ const parseExpr = code => {
 
 const evaluateExpr = code => {
   const key = code[0]
-  if (code.length > 1) {
+  if (code.length > 2) {
     code = code.slice(1)
     if (code.length == 1 && key == '-') {
       return parseFloat(`${key}${code[0]}`)
@@ -124,4 +124,10 @@ const valueParser = factory([
   extractIf
 ])
 
-console.log(valueParser('(if (if (> 20 10) (+ 1 1) (+ 3 3)) (+ 1 1) (+ 3 3))'))
+console.log(
+  JSON.stringify(
+    valueParser(
+      '(if (< 2 5) (if (> 20 10) (+ 1 1) (+ 3 3)) (if (> 20 10) (+ 1 1) (+ 3 3)))'
+    )
+  )
+)

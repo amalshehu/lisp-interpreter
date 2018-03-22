@@ -35,8 +35,11 @@ const extractNum = code => {
 }
 
 const extractOperator = code => {
-  let match = code.match(/^(\+|-|\*|\/|=|>|<|>=|<=)/)
-  return match != undefined ? [match[0], code.slice(match[0].length)] : null
+  const op = code.slice(0, code.indexOf(' '))
+  if (nativeFunctions[op]) {
+    return [op, code.replace(op, '')]
+}
+  return null
 }
 
 const extractString = code => {

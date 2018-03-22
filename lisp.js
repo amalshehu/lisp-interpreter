@@ -54,6 +54,10 @@ const extractIf = code => {
   let ifArray = []
   skipSpace(code) ? (code = skipSpace(code)[1]) : code
   while (!code.startsWith(')')) {
+    // const ifRe = /(\(.+?\))\s*(\(.+?\))\s*(\(.+?\))/
+    // let match = code.split(ifRe).filter(Boolean)
+    // console.log('m', match)
+
     let value = valueParser(code)
     if (value != null) {
       ifArray.push(value[0])

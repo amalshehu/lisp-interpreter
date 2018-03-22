@@ -17,7 +17,6 @@ const nativeFunctions = {
   '*': (a, b) => a * b,
   '<': (a, b) => a < b,
   '>': (a, b) => a > b,
-  condition: (a, b, c) => (a ? b : c),
   '<=': (a, b) => a <= b,
   '>=': (a, b) => a >= b,
   '=': (a, b) => a == b
@@ -146,9 +145,5 @@ const valueParser = factory([
   extractIf
 ])
 
-console.log(
-  JSON.stringify(
-    valueParser('(if (> 10 20) (+ 2 1) (+ 2 3)) (if (< 10 20) (+ 1 8) (+ 3 8))')
-  )
-)
+console.log(JSON.stringify(valueParser('(<= 10 10)')))
 // console.log(valueParser('(if (< 20 10) (+ 1 1) (+ 3 3))'))

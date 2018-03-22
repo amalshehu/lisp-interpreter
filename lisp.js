@@ -19,7 +19,9 @@ const nativeFunctions = {
   '>': (a, b) => a > b,
   '<=': (a, b) => a <= b,
   '>=': (a, b) => a >= b,
-  '=': (a, b) => a == b
+  '=': (a, b) => a == b,
+  min: (a, b) => Math.min(a, b),
+  max: (a, b) => Math.max(a, b)
 }
 
 const skipSpace = code => {

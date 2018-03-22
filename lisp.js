@@ -57,10 +57,14 @@ const conditionSplitter = code => {
   const re = /\((?:[^)(]+|\((?:[^)(]+|\([^)(]*\))*\))*\)/
   let i = 3
   while (i != 0) {
-    let m = code.match(re)
-    arr.push(m[0])
-    code = code.slice(m[0].length)
-    i--
+    try {
+      let m = code.match(re)
+      arr.push(m[0])
+      code = code.slice(m[0].length)
+      i--
+    } catch (error) {
+      throw SyntaxError('Invalid IF Syntax')
+    }
   }
   return arr
 }
@@ -129,16 +133,12 @@ const factory = parsers => {
     if (text === undefined) return null
     let out
     for (let parser of parsers) {
-      try {
-        out = parser(text)
-      } catch (error) {
-        console.log(error)
-      }
+      out = parser(text)
       if (out != null) {
         return out
       }
     }
-    return null
+    return new SyntaxError('LISP : INVALID SYNTAX')
   }
 }
 const valueParser = factory([
@@ -170,4 +170,4 @@ const valueParser = factory([
 //   valueParser('(if (> 10 20) (+ 1 1) (+ 3 3)) (if (< 10 20) (+ 1 1) (+ 3 3))')
 // )
 // console.log(valueParser('(if (< 1 2) (if (< 2 1) (+ 1 1) (+ 3 3)) (+ 4 4))'))
-// console.log(valueParser('(if (<= 1 2) (if (<= 2 2) (+ 1 1) (+ 3 3)) (+ 4 4))'))
+console.log(valueParser('(if (< 1 2) (if (< 2 1) (+ 1 2 3 4) (+ 3 3)))'))

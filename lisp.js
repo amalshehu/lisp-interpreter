@@ -33,21 +33,19 @@ const extractNum = code => {
 }
 
 const extractOperator = code => {
-  let match = code.match(
-    /^(^(!=)?|^(<=)?|^(>=)?|^(=)|^([\+|\-|\*|\/])?|^(<)?|^(>)?)?/
-  )
-  return match ? [match[0], code.slice(match[0].length)] : null
+  let match = code.match(/^(\+|-|\*|\/|=|>|<|>=|<=)/)
+  return match != undefined ? [match[0], code.slice(match[0].length)] : null
 }
 
 const extractString = code => {
   let match
-  return code && code.startsWith('"')
-    ? ((match = code.match(/^"(?:\\"|.)*?"/)),
-      match && match[0] != undefined
-        ? [match[0].slice(1, -1), code.replace(match[0], '')]
-        : SyntaxError('Syntax Error'))
-    : null
+  return code && code.startsWith('"') ?
+    ((match = code.match(/^"(?:\\"|.)*?"/)),
+      match && match[0] != undefined ? [match[0].slice(1, -1), code.replace(match[0], '')] :
+      SyntaxError('Syntax Error')) :
+    null
 }
+
 const conditionSplitter = code => {
   let arr = []
   const re = /\((?:[^)(]+|\((?:[^)(]+|\([^)(]*\))*\))*\)/
@@ -145,5 +143,5 @@ const valueParser = factory([
   extractIf
 ])
 
-console.log(JSON.stringify(valueParser('(<= 10 10)')))
-// console.log(valueParser('(if (< 20 10) (+ 1 1) (+ 3 3))'))
+// console.log(JSON.stringify(valueParser('(< 1 10)')))
+console.log(valueParser('(if (< 20 10) (+ 1 1) (+ 3 3))'))

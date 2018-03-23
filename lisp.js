@@ -1,12 +1,12 @@
-// let REPL = require('repl')
+let REPL = require('repl')
 
-// REPL.start({
-//   prompt: '>>> ',
-//   ignoreUndefined: true,
-//   eval: (expr, context, filename, callback) => {
-//     callback(null, valueParser(expr))
-//   }
-// })
+REPL.start({
+  prompt: '>>> ',
+  ignoreUndefined: true,
+  eval: (expr, context, filename, callback) => {
+    callback(null, valueParser(expr)[0])
+  }
+})
 
 let ENV = {}
 

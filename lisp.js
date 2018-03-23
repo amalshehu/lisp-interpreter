@@ -130,6 +130,8 @@ const parseExpr = code => {
     return valueParser(code)
   } else return [...box, code.slice(1)]
 }
+  return [...box, code.slice(1)]
+}
 
 const evaluateExpr = code => {
   const key = code[0]

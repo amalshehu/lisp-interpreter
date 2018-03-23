@@ -181,14 +181,13 @@ const valueParser = factory([
   extractDefine
 ])
 
-// console.log(JSON.stringify(valueParser('(< 1 10)')))
+// console.log(valueParser('(< 1 10)'))
 // console.log(valueParser('(<= 15 10)'))
 // console.log(valueParser('(+ 8 1 0 9 0)'))
 // console.log(valueParser('(+ 2 3 5)'))
 // console.log(valueParser('(- 4 3 1)'))
 // console.log(valueParser('(* 2 3 2)'))
 // console.log(valueParser('(/ 4 2 2)'))
-// console.log(valueParser('(1 2)'))
 // console.log(valueParser('(+ (+ 1 2) (+ 3 4) 87)'))
 // console.log(valueParser('(- (+ 1 2 9 9) (* 3 4) 87)'))
 // console.log(valueParser('(+ (* 6 9) (/ 9 4) 9)'))
@@ -199,7 +198,8 @@ const valueParser = factory([
 // console.log(valueParser('(if (< 1 2) (+ 6 9) (+ 9 4))'))
 // console.log(valueParser('(if (> 1 2) (+ 6 9) (+ 9 4))'))
 // console.log(
-//   valueParser('(if (> 10 20) (+ 1 1) (+ 3 3)) (if (< 10 20) (+ 1 1) (+ 3 3))')
+//   valueParser('(if (< 10 20) (+ 1 1) (+ 3 3)) (if (< 10 20) (+ 8 1) (+ 5 3))')
 // )
 // console.log(valueParser('(if (< 1 2) (if (< 2 1) (+ 1 1) (+ 3 3)) (+ 4 4))'))
+// console.log(valueParser('(1 2)'))
 console.log(valueParser('(define x 10)'))

@@ -135,11 +135,26 @@ const parseExpr = code => {
 
 const evaluateExpr = code => {
   const key = code[0]
-  if (code.length > 2) {
+  // if (!nativeFunctions.hasOwnProperty(key)) {
+  //   const msg = `${key} is not a function [(anon)]]`
+  //   throw Error(`\x1b[31m${msg}\x1b[0m`)
+  // }
     code = code.slice(1)
-    if (code.length == 1 && key == '-') {
-      return parseFloat(`${key}${code[0]}`)
+  if (code.length == 1) {
+    switch (key) {
+      case '-':
+        return Number(`${key}${code[0]}`)
+      case '+':
+        return code[0]
+      case '*':
+        return 1 * code[0]
+      case '/':
+        return 1 / code[0]
+      default:
+        break
     }
+    }
+  if (code.length > 1) {
     return code.reduce(nativeFunctions[key])
   }
   return code

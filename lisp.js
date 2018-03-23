@@ -128,15 +128,9 @@ const parseExpr = code => {
           throw Error(`\x1b[31m${msg}\x1b[0m`)
         }
         return [evaluateExpr(box), code.slice(1)]
-      } else [box, code.slice(1)]
+      }
     }
   }
-  if (code.slice(1) != '') {
-    code = code.slice(1)
-    skipSpace(code) ? (code = skipSpace(code)[1]) : code
-    return valueParser(code)
-  } else return [...box, code.slice(1)]
-}
   return [...box, code.slice(1)]
 }
 
@@ -146,7 +140,7 @@ const evaluateExpr = code => {
   //   const msg = `${key} is not a function [(anon)]]`
   //   throw Error(`\x1b[31m${msg}\x1b[0m`)
   // }
-    code = code.slice(1)
+  code = code.slice(1)
   if (code.length == 1) {
     switch (key) {
       case '-':
@@ -160,7 +154,7 @@ const evaluateExpr = code => {
       default:
         break
     }
-    }
+  }
   if (code.length > 1) {
     return code.reduce(nativeFunctions[key])
   }
@@ -168,6 +162,13 @@ const evaluateExpr = code => {
 }
 const factory = parsers => {
   return text => {
+    // if (
+    //   typeof text == 'string' &&
+    //   extractString(text) == null &&
+    // ) {
+    //   const msg = `execute: unbound symbol: "${text}"[]`
+    //   throw Error(`\x1b[31m${msg}\x1b[0m`)
+    // }
     if (text === undefined) return null
     let out
     for (let parser of parsers) {
@@ -188,6 +189,7 @@ const valueParser = factory([
   extractDefine
 ])
 
+// Tested
 // console.log(valueParser('(< 1 10)'))
 // console.log(valueParser('(<= 15 10)'))
 // console.log(valueParser('(+ 8 1 0 9 0)'))
@@ -204,9 +206,14 @@ const valueParser = factory([
 // console.log(valueParser('(if (<= 1 1) (+ 2 2) (+ 1 1))'))
 // console.log(valueParser('(if (< 1 2) (+ 6 9) (+ 9 4))'))
 // console.log(valueParser('(if (> 1 2) (+ 6 9) (+ 9 4))'))
+
+// Disabled second expression eval temporary.
+
 // console.log(
 //   valueParser('(if (< 10 20) (+ 1 1) (+ 3 3)) (if (< 10 20) (+ 8 1) (+ 5 3))')
 // )
+
+// WIP
+
 // console.log(valueParser('(if (< 1 2) (if (< 2 1) (+ 1 1) (+ 3 3)) (+ 4 4))'))
-// console.log(valueParser('(1 2)'))
-console.log(valueParser('(define x 10)'))
+// console.log(valueParser('(define x 10)'))

@@ -162,21 +162,23 @@ const evaluateExpr = code => {
 }
 const factory = parsers => {
   return text => {
-    // if (
-    //   typeof text == 'string' &&
-    //   extractString(text) == null &&
-    // ) {
+    // if (typeof text == 'string' && extractString(text) == null) {
     //   const msg = `execute: unbound symbol: "${text}"[]`
     //   throw Error(`\x1b[31m${msg}\x1b[0m`)
     // }
     if (text === undefined) return null
     let out
     for (let parser of parsers) {
-      out = parser(text)
+      try {
+        out = parser(text)
+      } catch (error) {
+        throw Error(error)
+      }
       if (out != null) {
         return out
       }
     }
+    throw Error('Maybe invalid syntax')
     return null
   }
 }
@@ -190,6 +192,7 @@ const valueParser = factory([
 ])
 
 // Tested
+
 // console.log(valueParser('(< 1 10)'))
 // console.log(valueParser('(<= 15 10)'))
 // console.log(valueParser('(+ 8 1 0 9 0)'))
@@ -206,6 +209,7 @@ const valueParser = factory([
 // console.log(valueParser('(if (<= 1 1) (+ 2 2) (+ 1 1))'))
 // console.log(valueParser('(if (< 1 2) (+ 6 9) (+ 9 4))'))
 // console.log(valueParser('(if (> 1 2) (+ 6 9) (+ 9 4))'))
+// console.log(valueParser('(if (< 1 2) (if (< 2 1) (+ 1 1) (+ 3 3)) (+ 4 4))'))
 
 // Disabled second expression eval temporary.
 
@@ -215,5 +219,4 @@ const valueParser = factory([
 
 // WIP
 
-// console.log(valueParser('(if (< 1 2) (if (< 2 1) (+ 1 1) (+ 3 3)) (+ 4 4))'))
 // console.log(valueParser('(define x 10)'))

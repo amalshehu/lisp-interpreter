@@ -120,6 +120,13 @@ const parseExpr = code => {
     }
     if (code.startsWith(')')) {
       if (nativeFunctions.hasOwnProperty(box[0])) {
+        const conditonalOperators = ['<', '>', '<=', '>=', '=']
+        if (box.length <= 2 && conditonalOperators.includes(box[0])) {
+          const msg = `${box[0]}: too few arguments (at least: 2 got: 1) [${
+            box[0]
+          }]`
+          throw Error(`\x1b[31m${msg}\x1b[0m`)
+        }
         return [evaluateExpr(box), code.slice(1)]
       } else [box, code.slice(1)]
     }

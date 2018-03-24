@@ -44,12 +44,11 @@ const extractOperator = code => {
 
 const extractString = code => {
   let match
-  return code && code.startsWith('"')
-    ? ((match = code.match(/^"(?:\\"|.)*?"/)),
-      match && match[0] != undefined
-        ? [match[0].slice(1, -1), code.replace(match[0], '')]
-        : SyntaxError('Syntax Error'))
-    : null
+  return code && code.startsWith('"') ?
+    ((match = code.match(/^"(?:\\"|.)*?"/)),
+      match && match[0] != undefined ? [match[0].slice(1, -1), code.replace(match[0], '')] :
+      SyntaxError('Syntax Error')) :
+    null
 }
 
 const conditionSplitter = code => {
@@ -68,6 +67,7 @@ const conditionSplitter = code => {
   }
   return arr
 }
+
 const extractDefine = code => {
   if (!code.startsWith('define')) return null
   code = code.slice(6)
@@ -131,6 +131,13 @@ const parseExpr = code => {
       }
     }
   }
+  const mathematicalOperators = ['+', '-', '*', '/']
+  if (!nativeFunctions.hasOwnProperty(box[0]) &&
+    mathematicalOperators.includes(box[0])
+  ) {
+    const msg = `${[...box]} is not a function [(anon)]]`
+    throw Error(`\x1b[31m${msg}\x1b[0m`)
+  }
   return [...box, code.slice(1)]
 }
 
@@ -162,10 +169,6 @@ const evaluateExpr = code => {
 }
 const factory = parsers => {
   return text => {
-    // if (typeof text == 'string' && extractString(text) == null) {
-    //   const msg = `execute: unbound symbol: "${text}"[]`
-    //   throw Error(`\x1b[31m${msg}\x1b[0m`)
-    // }
     if (text === undefined) return null
     let out
     for (let parser of parsers) {
@@ -178,7 +181,8 @@ const factory = parsers => {
         return out
       }
     }
-    throw Error('Maybe invalid syntax')
+    const msg = `execute: unbound symbol: "${text}"[]`
+    throw Error(`\x1b[31m${msg}\x1b[0m`)
     return null
   }
 }
@@ -198,9 +202,9 @@ const valueParser = factory([
 // console.log(valueParser('(+ 8 1 0 9 0)'))
 // console.log(valueParser('(+ 2 3 5)'))
 // console.log(valueParser('(- 4 3 1)'))
-// console.log(valueParser('(* 2 3 2)'))
+// console.log(valueParser('((* 2 3 2))'))
 // console.log(valueParser('(/ 4 2 2)'))
-// console.log(valueParser('(+ (+ 1 2) (+ 3 4) 87)'))
+// console.log(valueParser('(+ (+ 1 2) (+ 3 4) 87)'))()
 // console.log(valueParser('(- (+ 1 2 9 9) (* 3 4) 87)'))
 // console.log(valueParser('(+ (* 6 9) (/ 9 4) 9)'))
 // console.log(valueParser('(min 1 8 3 4 5)'))

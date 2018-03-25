@@ -15,7 +15,11 @@ const nativeFunctions = {
   '-': (a, b) => a - b,
   '/': (a, b) => a / b,
   '*': (a, b) => a * b,
-  '<': (a, b) => a < b,
+  '<': array =>
+    array
+      .slice(currentValue)
+      .map((e, i) => e < array[i])
+      .every(x => x),
   '>': (a, b) => a > b,
   '<=': (a, b) => a <= b,
   '>=': (a, b) => a >= b,
@@ -199,7 +203,7 @@ const valueParser = factory([
 
 // Tested
 
-console.log(valueParser('(< 1 10)'))
+console.log(valueParser('(< 6 5 4)'))
 // console.log(valueParser('(<= 15 10)'))
 // console.log(valueParser('(+ 8 1 0 9 0)'))
 // console.log(valueParser('(+ 2 3 5)'))

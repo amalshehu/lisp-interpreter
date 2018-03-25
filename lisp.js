@@ -1,12 +1,12 @@
-let REPL = require('repl')
+// let REPL = require('repl')
 
-REPL.start({
-  prompt: '>>> ',
-  ignoreUndefined: true,
-  eval: (expr, context, filename, callback) => {
-    callback(null, valueParser(expr)[0])
-  }
-})
+// REPL.start({
+//   prompt: '>>> ',
+//   ignoreUndefined: true,
+//   eval: (expr, context, filename, callback) => {
+//     callback(null, valueParser(expr)[0])
+//   }
+// })
 
 let ENV = {}
 
@@ -44,11 +44,12 @@ const extractOperator = code => {
 
 const extractString = code => {
   let match
-  return code && code.startsWith('"') ?
-    ((match = code.match(/^"(?:\\"|.)*?"/)),
-      match && match[0] != undefined ? [match[0].slice(1, -1), code.replace(match[0], '')] :
-      SyntaxError('Syntax Error')) :
-    null
+  return code && code.startsWith('"')
+    ? ((match = code.match(/^"(?:\\"|.)*?"/)),
+      match && match[0] != undefined
+        ? [match[0].slice(1, -1), code.replace(match[0], '')]
+        : SyntaxError('Syntax Error'))
+    : null
 }
 
 const conditionSplitter = code => {
@@ -132,7 +133,8 @@ const parseExpr = code => {
     }
   }
   const mathematicalOperators = ['+', '-', '*', '/']
-  if (!nativeFunctions.hasOwnProperty(box[0]) &&
+  if (
+    !nativeFunctions.hasOwnProperty(box[0]) &&
     mathematicalOperators.includes(box[0])
   ) {
     const msg = `${[...box]} is not a function [(anon)]]`
@@ -197,7 +199,7 @@ const valueParser = factory([
 
 // Tested
 
-// console.log(valueParser('(< 1 10)'))
+console.log(valueParser('(< 1 10)'))
 // console.log(valueParser('(<= 15 10)'))
 // console.log(valueParser('(+ 8 1 0 9 0)'))
 // console.log(valueParser('(+ 2 3 5)'))

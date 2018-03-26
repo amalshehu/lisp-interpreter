@@ -95,9 +95,9 @@ const extractIf = code => {
 
   const ifAst = conditionSplitter(code)
 
-  value = valueParser(ifAst[0])[0]
-    ? valueParser(ifAst[1])[0]
-    : valueParser(ifAst[2])[0]
+  value = parseExpr(ifAst[0])[0]
+    ? parseExpr(ifAst[1])[0]
+    : parseExpr(ifAst[2])[0]
 
   code = code
     .replace(ifAst[0], '')
@@ -127,10 +127,8 @@ const parseExpr = code => {
   while (code[0] !== ')') {
     skipSpace(code) ? (code = skipSpace(code)[1]) : code
     const result = valueParser(code)
-    if (result) {
-      results.push(result[0])
-      code = result[1]
-    }
+    results.push(result[0])
+    code = result[1]
     if (code.startsWith(')')) {
       // Error handler
       if (nativeFunctions.hasOwnProperty(results[0])) {
@@ -196,14 +194,14 @@ const valueParser = combinator([
 
 // Tested
 
-// console.log(valueParser('(> 1 2 3 4)'))
+console.log(valueParser('(+ (+ 3 4) (+ (+ 4 5) 6))'))
 // console.log(valueParser('(<= 15 10)'))
 // console.log(valueParser('(+ 8 1 0 9 0)'))
 // console.log(valueParser('(+ 2 3 5)'))
 // console.log(valueParser('(- 4 3 1)'))
 // console.log(valueParser('((* 2 3 2))'))
 // console.log(valueParser('(/ 4 2 2)'))
-// console.log(valueParser('(+ (+ 1 2) (+ 3 4) 87)'))()
+// console.log(valueParser('(+ (+ 1 2) (+ 3 4) 87)'))
 // console.log(valueParser('(- (+ 1 2 9 9) (* 3 4) 87)'))
 // console.log(valueParser('(+ (* 6 9) (/ 9 4) 9)'))
 // console.log(valueParser('(min 1 8 3 4 5)'))
@@ -211,7 +209,7 @@ const valueParser = combinator([
 // console.log(valueParser('(+ (* 6 9) (/ 9 4) 9)'))
 // console.log(valueParser('(if (<= 1 1) (+ 2 2) (+ 1 1))'))
 // console.log(valueParser('(if (< 1 2) (+ 6 9) (+ 9 4))'))
-console.log(valueParser('(if (> 1 2) (+ 6 9) (+ 9 4))'))
+// console.log(valueParser('(if (> 1 2) (+ 6 9) (+ 9 4))'))
 // console.log(valueParser('(if (< 1 2) (if (< 2 1) (+ 1 1) (+ 3 3)) (+ 4 4))'))
 
 // Disabled second expression eval temporary.

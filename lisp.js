@@ -15,10 +15,8 @@ const nativeFunctions = {
   '-': (a, b) => a - b,
   '/': (a, b) => a / b,
   '*': (a, b) => a * b,
-  '<': (a, b, c, array = array.slice(1)) =>
-    array.map((e, i) => e < array[i]).every(x => x),
-  '>': (a, b, c, array = array.slice(1)) =>
-    array.map((e, i) => array[i]).every(x => x) > e,
+  '<': (a, b) => a < b,
+  '>': (a, b) => a > b,
   '<=': (a, b) => a <= b,
   '>=': (a, b) => a >= b,
   '=': (a, b) => a == b,
@@ -46,11 +44,12 @@ const extractOperator = code => {
 
 const extractString = code => {
   let match
-  return code && code.startsWith('"') ?
-    ((match = code.match(/^"(?:\\"|.)*?"/)),
-      match && match[0] != undefined ? [match[0].slice(1, -1), code.replace(match[0], '')] :
-      SyntaxError('Syntax Error')) :
-    null
+  return code && code.startsWith('"')
+    ? ((match = code.match(/^"(?:\\"|.)*?"/)),
+      match && match[0] != undefined
+        ? [match[0].slice(1, -1), code.replace(match[0], '')]
+        : SyntaxError('Syntax Error'))
+    : null
 }
 
 const conditionSplitter = code => {
@@ -107,18 +106,18 @@ const extractIf = code => {
   return null
 }
 
-const checkErrorAndEval = (results) => {
-  if (nativeFunctions.hasOwnProperty(results[0])) {
-    const conditonalOperators = ['<', '>', '<=', '>=', '=']
-    if (results.length <= 2 && conditonalOperators.includes(results[0])) {
-      const msg = `${results[0]}: too few arguments (at least: 2 got: 1) [${
-        results[0]
-      }]`
-      throw Error(`\x1b[31m${msg}\x1b[0m`)
-    }
-    return [evaluateExpr(results), code.slice(1)]
-  }
-}
+// const checkErrorAndEval = (results, code) => {
+//   if (nativeFunctions.hasOwnProperty(results[0])) {
+//     const conditonalOperators = ['<', '>', '<=', '>=', '=']
+//     if (results.length <= 2 && conditonalOperators.includes(results[0])) {
+//       const msg = `${results[0]}: too few arguments (at least: 2 got: 1) [${
+//         results[0]
+//       }]`
+//       throw Error(`\x1b[31m${msg}\x1b[0m`)
+//     }
+//     return [evaluateExpr(results), code.slice(1)]
+//   }
+// }
 
 const parseExpr = code => {
   if (!code.startsWith('(')) {
@@ -134,7 +133,16 @@ const parseExpr = code => {
       code = result[1]
     }
     if (code.startsWith(')')) {
-      checkErrorAndEval(results)
+      if (nativeFunctions.hasOwnProperty(results[0])) {
+        const conditonalOperators = ['<', '>', '<=', '>=', '=']
+        if (results.length <= 2 && conditonalOperators.includes(results[0])) {
+          const msg = `${results[0]}: too few arguments (at least: 2 got: 1) [${
+            results[0]
+          }]`
+          throw Error(`\x1b[31m${msg}\x1b[0m`)
+        }
+        return [evaluateExpr(results), code.slice(1)]
+      }
     }
   }
   return [...results, code.slice(1)]
@@ -180,8 +188,8 @@ const combinator = parsers => {
         return out
       }
     }
-    const msg = `execute: unbound symbol: "${text}"[]`
-    throw Error(`\x1b[31m${msg}\x1b[0m`)
+    // const msg = `execute: unbound symbol: "${text}"[]`
+    // throw Error(`\x1b[31m${msg}\x1b[0m`)
     return null
   }
 }
@@ -196,7 +204,7 @@ const valueParser = combinator([
 
 // Tested
 
-console.log(valueParser('(> 1 2 3 4)')[0])
+// console.log(valueParser('(> 1 2 3 4)'))
 // console.log(valueParser('(<= 15 10)'))
 // console.log(valueParser('(+ 8 1 0 9 0)'))
 // console.log(valueParser('(+ 2 3 5)'))
@@ -211,7 +219,7 @@ console.log(valueParser('(> 1 2 3 4)')[0])
 // console.log(valueParser('(+ (* 6 9) (/ 9 4) 9)'))
 // console.log(valueParser('(if (<= 1 1) (+ 2 2) (+ 1 1))'))
 // console.log(valueParser('(if (< 1 2) (+ 6 9) (+ 9 4))'))
-// console.log(valueParser('(if (> 1 2) (+ 6 9) (+ 9 4))'))
+console.log(valueParser('(if (> 1 2) (+ 6 9) (+ 9 4))'))
 // console.log(valueParser('(if (< 1 2) (if (< 2 1) (+ 1 1) (+ 3 3)) (+ 4 4))'))
 
 // Disabled second expression eval temporary.

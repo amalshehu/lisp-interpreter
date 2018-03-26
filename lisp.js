@@ -36,9 +36,11 @@ const extractNum = code => {
 
 const extractOperator = code => {
   const op = code.slice(0, code.indexOf(' '))
+
   if (nativeFunctions[op]) {
     return [op, code.replace(op, '')]
   }
+
   return null
 }
 
@@ -53,6 +55,7 @@ const extractString = code => {
 }
 
 const conditionSplitter = code => {
+  // Splits if condition using regex into an array.
   let arr = []
   const re = /\((?:[^)(]+|\((?:[^)(]+|\([^)(]*\))*\))*\)/
   let i = 3
@@ -86,12 +89,16 @@ const extractDefine = code => {
 
 const extractIf = code => {
   if (!code.startsWith('if')) return null
+
   code = code.slice(2)
   skipSpace(code) ? (code = skipSpace(code)[1]) : code
+
   const ifAst = conditionSplitter(code)
+
   value = valueParser(ifAst[0])[0]
     ? valueParser(ifAst[1])[0]
     : valueParser(ifAst[2])[0]
+
   code = code
     .replace(ifAst[0], '')
     .replace(ifAst[1], '')
@@ -99,21 +106,9 @@ const extractIf = code => {
 
   skipSpace(code) ? (code = skipSpace(code)[1]) : code
   if (code.startsWith(')')) return [value, code]
+
   return null
 }
-
-// const checkErrorAndEval = (results, code) => {
-//   if (nativeFunctions.hasOwnProperty(results[0])) {
-//     const conditonalOperators = ['<', '>', '<=', '>=', '=']
-//     if (results.length <= 2 && conditonalOperators.includes(results[0])) {
-//       const msg = `${results[0]}: too few arguments (at least: 2 got: 1) [${
-//         results[0]
-//       }]`
-//       throw Error(`\x1b[31m${msg}\x1b[0m`)
-//     }
-//     return [evaluateExpr(results), code.slice(1)]
-//   }
-// }
 
 const parseExpr = code => {
   if (!code.startsWith('(')) {
@@ -129,6 +124,7 @@ const parseExpr = code => {
       code = result[1]
     }
     if (code.startsWith(')')) {
+      // Error handler
       if (nativeFunctions.hasOwnProperty(results[0])) {
         const conditonalOperators = ['<', '>', '<=', '>=', '=']
         if (results.length <= 2 && conditonalOperators.includes(results[0])) {
@@ -137,6 +133,7 @@ const parseExpr = code => {
           }]`
           throw Error(`\x1b[31m${msg}\x1b[0m`)
         }
+        // Returns evaluated values from results array.
         return [evaluateExpr(results), code.slice(1)]
       }
     }
@@ -170,36 +167,13 @@ const evaluateExpr = code => {
   }
   return code
 }
-const Right = x => ({
-  chain: f => f(x),
-  map: f => Right(f(x)),
-  fold: (f, g) => g(x),
-  inspect: () => `Right(${x})`
-})
-
-const Left = x => ({
-  chain: f => Left(x),
-  map: f => Left(x),
-  fold: (f, g) => f(x),
-  inspect: () => `Left(${x})`
-})
-
-const fromNullable = x => (x != null ? Right(x) : Left(null))
-
-const tryCatch = f => {
-  try {
-    return Right(f())
-  } catch (e) {
-    return Left(e)
-  }
-}
 
 const combinator = parsers => {
   return text => {
     if (text === undefined) return null
     let out
     for (let parser of parsers) {
-      tryCatch(() => parser(text)).fold(err => err, c => (out = c))
+      out = parser(text)
       if (out != null) {
         return out
       }

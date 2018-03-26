@@ -109,7 +109,15 @@ const extractIf = code => {
 
   return null
 }
-
+const checkValuesLength = results => {
+  const conditonalOperators = ['<', '>', '<=', '>=', '=']
+  if (results.length <= 2 && conditonalOperators.includes(results[0])) {
+    const msg = `${results[0]}: too few arguments (at least: 2 got: 1) [${
+      results[0]
+    }]`
+    throw Error(`\x1b[31m${msg}\x1b[0m`)
+  }
+}
 const parseExpr = code => {
   if (!code.startsWith('(')) {
     return null
@@ -126,13 +134,7 @@ const parseExpr = code => {
     if (code.startsWith(')')) {
       // Error handler
       if (nativeFunctions.hasOwnProperty(results[0])) {
-        const conditonalOperators = ['<', '>', '<=', '>=', '=']
-        if (results.length <= 2 && conditonalOperators.includes(results[0])) {
-          const msg = `${results[0]}: too few arguments (at least: 2 got: 1) [${
-            results[0]
-          }]`
-          throw Error(`\x1b[31m${msg}\x1b[0m`)
-        }
+        checkValuesLength(results)
         // Returns evaluated values from results array.
         return [evaluateExpr(results), code.slice(1)]
       }

@@ -15,11 +15,8 @@ const nativeFunctions = {
   '-': (a, b) => a - b,
   '/': (a, b) => a / b,
   '*': (a, b) => a * b,
-  '<': array =>
-    array
-      .slice(currentValue)
-      .map((e, i) => e < array[i])
-      .every(x => x),
+  '<': (a, b, c, array = array.slice(1)) =>
+    array.map((e, i) => e < array[i]).every(x => x),
   '>': (a, b) => a > b,
   '<=': (a, b) => a <= b,
   '>=': (a, b) => a >= b,
@@ -48,12 +45,11 @@ const extractOperator = code => {
 
 const extractString = code => {
   let match
-  return code && code.startsWith('"')
-    ? ((match = code.match(/^"(?:\\"|.)*?"/)),
-      match && match[0] != undefined
-        ? [match[0].slice(1, -1), code.replace(match[0], '')]
-        : SyntaxError('Syntax Error'))
-    : null
+  return code && code.startsWith('"') ?
+    ((match = code.match(/^"(?:\\"|.)*?"/)),
+      match && match[0] != undefined ? [match[0].slice(1, -1), code.replace(match[0], '')] :
+      SyntaxError('Syntax Error')) :
+    null
 }
 
 const conditionSplitter = code => {
@@ -114,37 +110,36 @@ const parseExpr = code => {
   if (!code.startsWith('(')) {
     return null
   }
-  let box = []
+  let results = []
   code = code.slice(1)
   while (code[0] !== ')') {
     skipSpace(code) ? (code = skipSpace(code)[1]) : code
-    const factoryOut = valueParser(code)
-    if (factoryOut) {
-      box.push(factoryOut[0])
-      code = factoryOut[1]
+    const combinatorOut = valueParser(code)
+    if (combinatorOut) {
+      results.push(combinatorOut[0])
+      code = combinatorOut[1]
     }
     if (code.startsWith(')')) {
-      if (nativeFunctions.hasOwnProperty(box[0])) {
+      if (nativeFunctions.hasOwnProperty(results[0])) {
         const conditonalOperators = ['<', '>', '<=', '>=', '=']
-        if (box.length <= 2 && conditonalOperators.includes(box[0])) {
-          const msg = `${box[0]}: too few arguments (at least: 2 got: 1) [${
-            box[0]
+        if (results.length <= 2 && conditonalOperators.includes(results[0])) {
+          const msg = `${results[0]}: too few arguments (at least: 2 got: 1) [${
+            results[0]
           }]`
           throw Error(`\x1b[31m${msg}\x1b[0m`)
         }
-        return [evaluateExpr(box), code.slice(1)]
+        return [evaluateExpr(results), code.slice(1)]
       }
     }
   }
   const mathematicalOperators = ['+', '-', '*', '/']
-  if (
-    !nativeFunctions.hasOwnProperty(box[0]) &&
-    mathematicalOperators.includes(box[0])
+  if (!nativeFunctions.hasOwnProperty(results[0]) &&
+    mathematicalOperators.includes(results[0])
   ) {
-    const msg = `${[...box]} is not a function [(anon)]]`
+    const msg = `${[...results]} is not a function [(anon)]]`
     throw Error(`\x1b[31m${msg}\x1b[0m`)
   }
-  return [...box, code.slice(1)]
+  return [...results, code.slice(1)]
 }
 
 const evaluateExpr = code => {
@@ -173,7 +168,7 @@ const evaluateExpr = code => {
   }
   return code
 }
-const factory = parsers => {
+const combinator = parsers => {
   return text => {
     if (text === undefined) return null
     let out
@@ -192,7 +187,7 @@ const factory = parsers => {
     return null
   }
 }
-const valueParser = factory([
+const valueParser = combinator([
   parseExpr,
   extractString,
   extractNum,

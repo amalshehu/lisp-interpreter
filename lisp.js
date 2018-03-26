@@ -17,7 +17,8 @@ const nativeFunctions = {
   '*': (a, b) => a * b,
   '<': (a, b, c, array = array.slice(1)) =>
     array.map((e, i) => e < array[i]).every(x => x),
-  '>': (a, b) => a > b,
+  '>': (a, b, c, array = array.slice(1)) =>
+    array.map((e, i) => array[i]).every(x => x) > e,
   '<=': (a, b) => a <= b,
   '>=': (a, b) => a >= b,
   '=': (a, b) => a == b,
@@ -106,6 +107,19 @@ const extractIf = code => {
   return null
 }
 
+const checkErrorAndEval = (results) => {
+  if (nativeFunctions.hasOwnProperty(results[0])) {
+    const conditonalOperators = ['<', '>', '<=', '>=', '=']
+    if (results.length <= 2 && conditonalOperators.includes(results[0])) {
+      const msg = `${results[0]}: too few arguments (at least: 2 got: 1) [${
+        results[0]
+      }]`
+      throw Error(`\x1b[31m${msg}\x1b[0m`)
+    }
+    return [evaluateExpr(results), code.slice(1)]
+  }
+}
+
 const parseExpr = code => {
   if (!code.startsWith('(')) {
     return null
@@ -114,30 +128,14 @@ const parseExpr = code => {
   code = code.slice(1)
   while (code[0] !== ')') {
     skipSpace(code) ? (code = skipSpace(code)[1]) : code
-    const combinatorOut = valueParser(code)
-    if (combinatorOut) {
-      results.push(combinatorOut[0])
-      code = combinatorOut[1]
+    const result = valueParser(code)
+    if (result) {
+      results.push(result[0])
+      code = result[1]
     }
     if (code.startsWith(')')) {
-      if (nativeFunctions.hasOwnProperty(results[0])) {
-        const conditonalOperators = ['<', '>', '<=', '>=', '=']
-        if (results.length <= 2 && conditonalOperators.includes(results[0])) {
-          const msg = `${results[0]}: too few arguments (at least: 2 got: 1) [${
-            results[0]
-          }]`
-          throw Error(`\x1b[31m${msg}\x1b[0m`)
-        }
-        return [evaluateExpr(results), code.slice(1)]
-      }
+      checkErrorAndEval(results)
     }
-  }
-  const mathematicalOperators = ['+', '-', '*', '/']
-  if (!nativeFunctions.hasOwnProperty(results[0]) &&
-    mathematicalOperators.includes(results[0])
-  ) {
-    const msg = `${[...results]} is not a function [(anon)]]`
-    throw Error(`\x1b[31m${msg}\x1b[0m`)
   }
   return [...results, code.slice(1)]
 }
@@ -198,7 +196,7 @@ const valueParser = combinator([
 
 // Tested
 
-console.log(valueParser('(< 6 5 4)'))
+console.log(valueParser('(> 1 2 3 4)')[0])
 // console.log(valueParser('(<= 15 10)'))
 // console.log(valueParser('(+ 8 1 0 9 0)'))
 // console.log(valueParser('(+ 2 3 5)'))

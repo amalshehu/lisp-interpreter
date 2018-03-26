@@ -89,18 +89,14 @@ const extractIf = code => {
   code = code.slice(2)
   skipSpace(code) ? (code = skipSpace(code)[1]) : code
   const ifAst = conditionSplitter(code)
-  let value
-  value = valueParser(ifAst[0])
-  code = code.replace(ifAst[0], '')
-  if (value[0]) {
-    value = valueParser(ifAst[1])[0]
-    code = code.replace(ifAst[1], '')
-    code = code.replace(ifAst[2], '')
-  } else {
-    value = valueParser(ifAst[2])[0]
-    code = code.replace(ifAst[1], '')
-    code = code.replace(ifAst[2], '')
-  }
+  value = valueParser(ifAst[0])[0]
+    ? valueParser(ifAst[1])[0]
+    : valueParser(ifAst[2])[0]
+  code = code
+    .replace(ifAst[0], '')
+    .replace(ifAst[1], '')
+    .replace(ifAst[2], '')
+
   skipSpace(code) ? (code = skipSpace(code)[1]) : code
   if (code.startsWith(')')) return [value, code]
   return null
@@ -174,16 +170,36 @@ const evaluateExpr = code => {
   }
   return code
 }
+const Right = x => ({
+  chain: f => f(x),
+  map: f => Right(f(x)),
+  fold: (f, g) => g(x),
+  inspect: () => `Right(${x})`
+})
+
+const Left = x => ({
+  chain: f => Left(x),
+  map: f => Left(x),
+  fold: (f, g) => f(x),
+  inspect: () => `Left(${x})`
+})
+
+const fromNullable = x => (x != null ? Right(x) : Left(null))
+
+const tryCatch = f => {
+  try {
+    return Right(f())
+  } catch (e) {
+    return Left(e)
+  }
+}
+
 const combinator = parsers => {
   return text => {
     if (text === undefined) return null
     let out
     for (let parser of parsers) {
-      try {
-        out = parser(text)
-      } catch (error) {
-        throw Error(error)
-      }
+      tryCatch(() => parser(text)).fold(err => err, c => (out = c))
       if (out != null) {
         return out
       }

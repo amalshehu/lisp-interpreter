@@ -10,12 +10,20 @@
 
 let ENV = {}
 
+const relational = (acc, cur, i, ar, op) => {
+  let result = true
+  let prev = ar[0]
+  if (!result) return false
+  result = eval(`${prev} ${op} ${cur}`)
+  prev = cur
+  return result ? true : false
+}
 const nativeFunctions = {
   '+': (a, b) => a + b,
   '-': (a, b) => a - b,
   '/': (a, b) => a / b,
   '*': (a, b) => a * b,
-  '<': (a, b) => a < b,
+  '<': (acc, cur, i, ar) => relational(acc, cur, i, ar, '<'),
   '>': (a, b) => a > b,
   '<=': (a, b) => a <= b,
   '>=': (a, b) => a >= b,
@@ -194,7 +202,7 @@ const valueParser = combinator([
 
 // Tested
 
-console.log(valueParser('(+ (+ 3 4) (+ (+ 4 5) 6))'))
+console.log(valueParser('(< 6 5 4)'))
 // console.log(valueParser('(<= 15 10)'))
 // console.log(valueParser('(+ 8 1 0 9 0)'))
 // console.log(valueParser('(+ 2 3 5)'))

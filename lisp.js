@@ -24,10 +24,10 @@ const nativeFunctions = {
   '/': (a, b) => a / b,
   '*': (a, b) => a * b,
   '<': (acc, cur, i, ar) => relational(acc, cur, i, ar, '<'),
-  '>': (a, b) => a > b,
-  '<=': (a, b) => a <= b,
-  '>=': (a, b) => a >= b,
-  '=': (a, b) => a == b,
+  '>': (acc, cur, i, ar) => relational(acc, cur, i, ar, '>'),
+  '<=': (acc, cur, i, ar) => relational(acc, cur, i, ar, '<='),
+  '>=': (acc, cur, i, ar) => relational(acc, cur, i, ar, '>='),
+  '=': (acc, cur, i, ar) => relational(acc, cur, i, ar, '=='),
   min: (a, b) => Math.min(a, b),
   max: (a, b) => Math.max(a, b)
 }
@@ -202,7 +202,7 @@ const valueParser = combinator([
 
 // Tested
 
-console.log(valueParser('(< 6 5 4)'))
+console.log(valueParser('(> 10 5 6 4 7 8 23 56 78)'))
 // console.log(valueParser('(<= 15 10)'))
 // console.log(valueParser('(+ 8 1 0 9 0)'))
 // console.log(valueParser('(+ 2 3 5)'))

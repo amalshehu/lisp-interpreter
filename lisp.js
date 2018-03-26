@@ -54,12 +54,15 @@ const extractOperator = code => {
 
 const extractString = code => {
   let match
-  return code && code.startsWith('"')
-    ? ((match = code.match(/^"(?:\\"|.)*?"/)),
-      match && match[0] != undefined
-        ? [match[0].slice(1, -1), code.replace(match[0], '')]
-        : SyntaxError('Syntax Error'))
-    : null
+  return code && code.startsWith('"') ?
+    ((match = code.match(/^"(?:\\"|.)*?"/)),
+      match && match[0] != undefined ? [match[0].slice(1, -1), code.replace(match[0], '')] :
+      SyntaxError('Syntax Error')) :
+    null
+}
+const extractBoolean = str => {
+  return str.startsWith('#f') ? ['#f', str.slice(2)] :
+    str.startsWith('#t') ? ['#t', str.slice(2)] : null
 }
 
 const conditionSplitter = code => {
@@ -103,9 +106,9 @@ const extractIf = code => {
 
   const ifAst = conditionSplitter(code)
 
-  value = parseExpr(ifAst[0])[0]
-    ? parseExpr(ifAst[1])[0]
-    : parseExpr(ifAst[2])[0]
+  value = parseExpr(ifAst[0])[0] ?
+    parseExpr(ifAst[1])[0] :
+    parseExpr(ifAst[2])[0]
 
   code = code
     .replace(ifAst[0], '')
@@ -195,6 +198,7 @@ const valueParser = combinator([
   parseExpr,
   extractString,
   extractNum,
+  extractBoolean,
   extractOperator,
   extractIf,
   extractDefine
@@ -202,7 +206,7 @@ const valueParser = combinator([
 
 // Tested
 
-console.log(valueParser('(> 10 5 6 4 7 8 23 56 78)'))
+console.log(valueParser('#f'))
 // console.log(valueParser('(<= 15 10)'))
 // console.log(valueParser('(+ 8 1 0 9 0)'))
 // console.log(valueParser('(+ 2 3 5)'))

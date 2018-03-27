@@ -164,14 +164,15 @@ const functionComposer = (args, body) => {
     // WIP
   fn = `${args} => ${body[]}`
   }
-  if (code.startsWith('lambda')) {
+const extractLambda = code => {
+  if (!code.startsWith('lambda')) return null
     // Extract variables
     code = code.slice(6)
     result = lambdaSplitter(code)
-
     // Eval body
-    return args
-  }
+  func = functionComposer(result[0], result[1])
+  code = code.replace(result[0], '').replace(result[1], '')
+  return [func, code]
 }
 
 const parseExpr = code => {

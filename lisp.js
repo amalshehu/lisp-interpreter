@@ -30,7 +30,9 @@ const nativeFunctions = {
   '>=': (acc, cur, i, ar) => relational(acc, cur, i, ar, '>='),
   '=': (acc, cur, i, ar) => relational(acc, cur, i, ar, '=='),
   min: (a, b) => Math.min(a, b),
-  max: (a, b) => Math.max(a, b)
+  max: (a, b) => Math.max(a, b),
+  abs: (a, b) => Math.abs(a, b),
+  round: (a, b) => Math.round(a, b)
 }
 
 const skipSpace = code => {
@@ -209,7 +211,7 @@ const valueParser = combinator([
 
 // Tested
 
-console.log(valueParser('(if #t #t (+ 1 1) )'))
+// console.log(valueParser('(if #f #t #f )'))
 // console.log(valueParser('#t'))
 
 // console.log(valueParser('(<= 15 10)'))
@@ -237,4 +239,4 @@ console.log(valueParser('(if #t #t (+ 1 1) )'))
 
 // WIP
 
-// console.log(valueParser('(define x 10)'))
+console.log(valueParser('(define x 10)'))

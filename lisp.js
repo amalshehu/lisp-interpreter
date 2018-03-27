@@ -45,6 +45,14 @@ const extractNum = code => {
   return match ? [parseFloat(match[0]), code.slice(match[0].length)] : null
 }
 
+const extractSymbol = code => {
+  const symbol = code.slice(0, code.indexOf(' '))
+  if (ENV[symbol]) {
+    return [ENV[symbol], code.replace(symbol, '')]
+  }
+  return null
+}
+
 const extractOperator = code => {
   const op = code.slice(0, code.indexOf(' '))
   if (nativeFunctions[op]) {
@@ -201,6 +209,7 @@ const combinator = parsers => {
 
 const valueParser = combinator([
   parseExpr,
+  extractSymbol,
   extractString,
   extractNum,
   extractBoolean,
@@ -210,6 +219,8 @@ const valueParser = combinator([
 ])
 
 // Tested
+console.log(valueParser('(define x 5)'))
+console.log(valueParser('(+ x 1000)'))
 
 // console.log(valueParser('(if #f #t #f )'))
 // console.log(valueParser('#t'))
@@ -236,7 +247,3 @@ const valueParser = combinator([
 // console.log(
 //   valueParser('(if (< 10 20) (+ 1 1) (+ 3 3)) (if (< 10 20) (+ 8 1) (+ 5 3))')
 // )
-
-// WIP
-
-console.log(valueParser('(define x 10)'))

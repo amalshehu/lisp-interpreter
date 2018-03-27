@@ -18,13 +18,12 @@ const relational = (acc, cur, i, ar, op) => {
   prev = cur
   return result ? true : false
 }
+
 const nativeFunctions = {
   '+': (a, b) => a + b,
   '-': (a, b) => a - b,
   '/': (a, b) => a / b,
   '*': (a, b) => a * b,
-  '#t': true,
-  '#f': false,
   '<': (acc, cur, i, ar) => relational(acc, cur, i, ar, '<'),
   '>': (acc, cur, i, ar) => relational(acc, cur, i, ar, '>'),
   '<=': (acc, cur, i, ar) => relational(acc, cur, i, ar, '<='),
@@ -46,11 +45,9 @@ const extractNum = code => {
 
 const extractOperator = code => {
   const op = code.slice(0, code.indexOf(' '))
-
   if (nativeFunctions[op]) {
     return [op, code.replace(op, '')]
   }
-
   return null
 }
 
@@ -121,9 +118,9 @@ const extractIf = code => {
     .replace(ifAst[2], '')
   skipSpace(code) ? (code = skipSpace(code)[1]) : code
   if (code.startsWith(')')) return [value, code]
-
   return null
 }
+
 const checkValuesLength = results => {
   const conditonalOperators = ['<', '>', '<=', '>=', '=']
   if (results.length <= 2 && conditonalOperators.includes(results[0])) {
@@ -133,6 +130,7 @@ const checkValuesLength = results => {
     throw Error(`\x1b[31m${msg}\x1b[0m`)
   }
 }
+
 const parseExpr = code => {
   if (!code.startsWith('(')) {
     return null
@@ -198,6 +196,7 @@ const combinator = parsers => {
     return null
   }
 }
+
 const valueParser = combinator([
   parseExpr,
   extractString,
@@ -210,7 +209,9 @@ const valueParser = combinator([
 
 // Tested
 
-console.log(valueParser('(if #f (+ 5 5) (+ 8 8) )'))
+console.log(valueParser('(if #t #t (+ 1 1) )'))
+// console.log(valueParser('#t'))
+
 // console.log(valueParser('(<= 15 10)'))
 // console.log(valueParser('(+ 8 1 0 9 0)'))
 // console.log(valueParser('(+ 2 3 5)'))

@@ -11,8 +11,6 @@ let REPL = require('repl')
 //   }
 // })
 
-let ENV = {}
-
 const relational = (acc, cur, i, ar, op) => {
   let result = true
   let prev = ar[0]
@@ -161,15 +159,15 @@ const lambdaSplitter = code => {
   return arr
 }
 const functionComposer = (args, body) => {
-    // WIP
+  // WIP
   fn = `${args} => ${body[]}`
-  }
+}
 const extractLambda = code => {
   if (!code.startsWith('lambda')) return null
-    // Extract variables
-    code = code.slice(6)
-    result = lambdaSplitter(code)
-    // Eval body
+  // Extract variables
+  code = code.slice(6)
+  result = lambdaSplitter(code)
+  // Eval body
   func = functionComposer(result[0], result[1])
   code = code.replace(result[0], '').replace(result[1], '')
   return [func, code]
@@ -243,6 +241,7 @@ const combinator = parsers => {
 
 const valueParser = combinator([
   parseExpr,
+  extractLambda,
   extractSymbol,
   extractString,
   extractNum,
@@ -252,13 +251,20 @@ const valueParser = combinator([
   extractDefine
 ])
 
+// WIP
+console.log(valueParser('(define square (lambda (x, y, z) (* x x)))'))
+
+// console.log(extractLambda('lambda (r) (* pi (* r r)))'))
+
+// console.log('(define circle-area (lambda (r) (* pi (* r r)))')
+// console.log('(circle-area (+ 5 5))')
+
 // Tested
-console.log(valueParser('(define x 5)'))
-console.log(valueParser('(+ x 1000)'))
+// console.log(valueParser('(define x 5)'))
+// console.log(valueParser('(+ x 1000)'))
 
-// console.log(valueParser('(if #f #t #f )'))
+// console.log(valueParser('(if #f 2 4 )'))
 // console.log(valueParser('#t'))
-
 // console.log(valueParser('(<= 15 10)'))
 // console.log(valueParser('(+ 8 1 0 9 0)'))
 // console.log(valueParser('(+ 2 3 5)'))

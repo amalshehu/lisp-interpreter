@@ -1,4 +1,7 @@
-// let REPL = require('repl')
+let ENV = {
+  pi: 3.14159265359
+}
+let REPL = require('repl')
 
 // REPL.start({
 //   prompt: '>>> ',

@@ -143,6 +143,37 @@ const checkValuesLength = results => {
     throw Error(`\x1b[31m${msg}\x1b[0m`)
   }
 }
+const lambdaSplitter = code => {
+  let arr = []
+  const re = /\((?:[^)(]+|\((?:[^)(]+|\([^)(]*\))*\))*\)/
+  let i = 2
+  while (i != 0) {
+    try {
+      skipSpace(code) ? (code = skipSpace(code)[1]) : code
+      let m = code.startsWith('(') ? code.match(re) : code.match(/([^\s]+)/)
+      arr.push(m[0])
+      code = code.slice(m[0].length)
+      i--
+    } catch (error) {
+      throw SyntaxError('Invalid Lambda Syntax')
+    }
+  }
+  return arr
+}
+
+const extractLambda = code => {
+  if (code.startsWith('(')) {
+    // WIP
+  }
+  if (code.startsWith('lambda')) {
+    // Extract variables
+    code = code.slice(6)
+    result = lambdaSplitter(code)
+
+    // Eval body
+    return args
+  }
+}
 
 const parseExpr = code => {
   if (!code.startsWith('(')) {

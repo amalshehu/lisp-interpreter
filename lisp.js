@@ -160,10 +160,9 @@ const lambdaSplitter = code => {
   }
   return arr
 }
-
-const extractLambda = code => {
-  if (code.startsWith('(')) {
+const functionComposer = (args, body) => {
     // WIP
+  fn = `${args} => ${body[]}`
   }
   if (code.startsWith('lambda')) {
     // Extract variables

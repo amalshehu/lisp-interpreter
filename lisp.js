@@ -56,18 +56,18 @@ const extractOperator = code => {
 
 const extractString = code => {
   let match
-  return code && code.startsWith('"') ?
-    ((match = code.match(/^"(?:\\"|.)*?"/)),
-      match && match[0] != undefined ?
-      [match[0].slice(1, -1), code.replace(match[0], '')] :
-      SyntaxError('Syntax Error')) :
-    null
+  return code && code.startsWith('"')
+    ? ((match = code.match(/^"(?:\\"|.)*?"/)),
+      match && match[0] != undefined
+        ? [match[0].slice(1, -1), code.replace(match[0], '')]
+        : SyntaxError('Syntax Error'))
+    : null
 }
 
 const extractBoolean = str => {
-  return str.startsWith('#f') ?
-    ['#f', str.slice(2)] :
-    str.startsWith('#t') ? ['#t', str.slice(2)] : null
+  return str.startsWith('#f')
+    ? ['#f', str.slice(2)]
+    : str.startsWith('#t') ? ['#t', str.slice(2)] : null
 }
 
 const conditionSplitter = code => {
@@ -97,7 +97,7 @@ const extractDefine = code => {
   const symbol = code.slice(0, code.indexOf(' '))
   code = code.slice(symbol.length)
   skipSpace(code) ? (code = skipSpace(code)[1]) : code
-  value = valueParser(code)
+  let value = valueParser(code)
   if (value) {
     ENV[symbol] = value[0]
     console.log(`value ${value[0]} assigned to ${symbol}`)
@@ -110,9 +110,11 @@ const extractIf = code => {
   code = code.slice(2)
   skipSpace(code) ? (code = skipSpace(code)[1]) : code
   const ifAst = conditionSplitter(code)
-  value = valueParser(ifAst[0])[0] ?
-    valueParser(ifAst[1])[0] :
-    valueParser(ifAst[2])[0]
+  let condition = valueParser(ifAst[0])[0]
+  let value =
+    (condition && condition != '#f') || condition === '#t'
+      ? valueParser(ifAst[1])[0]
+      : valueParser(ifAst[2])[0]
   code = code
     .replace(ifAst[0], '')
     .replace(ifAst[1], '')
@@ -208,7 +210,7 @@ const valueParser = combinator([
 
 // Tested
 
-console.log(valueParser('(if #f 1 2 )'))
+console.log(valueParser('(if #f (+ 5 5) (+ 8 8) )'))
 // console.log(valueParser('(<= 15 10)'))
 // console.log(valueParser('(+ 8 1 0 9 0)'))
 // console.log(valueParser('(+ 2 3 5)'))

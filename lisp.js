@@ -23,6 +23,8 @@ const nativeFunctions = {
   '-': (a, b) => a - b,
   '/': (a, b) => a / b,
   '*': (a, b) => a * b,
+  '#t': true,
+  '#f': false,
   '<': (acc, cur, i, ar) => relational(acc, cur, i, ar, '<'),
   '>': (acc, cur, i, ar) => relational(acc, cur, i, ar, '>'),
   '<=': (acc, cur, i, ar) => relational(acc, cur, i, ar, '<='),
@@ -54,17 +56,18 @@ const extractOperator = code => {
 
 const extractString = code => {
   let match
-  return code && code.startsWith('"')
-    ? ((match = code.match(/^"(?:\\"|.)*?"/)),
-      match && match[0] != undefined
-        ? [match[0].slice(1, -1), code.replace(match[0], '')]
-        : SyntaxError('Syntax Error'))
-    : null
+  return code && code.startsWith('"') ?
+    ((match = code.match(/^"(?:\\"|.)*?"/)),
+      match && match[0] != undefined ?
+      [match[0].slice(1, -1), code.replace(match[0], '')] :
+      SyntaxError('Syntax Error')) :
+    null
 }
+
 const extractBoolean = str => {
-  return str.startsWith('#f')
-    ? ['#f', str.slice(2)]
-    : str.startsWith('#t') ? ['#t', str.slice(2)] : null
+  return str.startsWith('#f') ?
+    ['#f', str.slice(2)] :
+    str.startsWith('#t') ? ['#t', str.slice(2)] : null
 }
 
 const conditionSplitter = code => {
@@ -75,8 +78,8 @@ const conditionSplitter = code => {
   while (i != 0) {
     try {
       // WIP
-      // let m = code.startsWith('(') ? code.match(re) : code.match(/([^\s]+)/)
-      let m = code.match(re)
+      skipSpace(code) ? (code = skipSpace(code)[1]) : code
+      let m = code.startsWith('(') ? code.match(re) : code.match(/([^\s]+)/)
       arr.push(m[0])
       code = code.slice(m[0].length)
       i--
@@ -104,21 +107,16 @@ const extractDefine = code => {
 
 const extractIf = code => {
   if (!code.startsWith('if')) return null
-
   code = code.slice(2)
   skipSpace(code) ? (code = skipSpace(code)[1]) : code
-
   const ifAst = conditionSplitter(code)
-
-  value = parseExpr(ifAst[0])[0]
-    ? parseExpr(ifAst[1])[0]
-    : parseExpr(ifAst[2])[0]
-
+  value = valueParser(ifAst[0])[0] ?
+    valueParser(ifAst[1])[0] :
+    valueParser(ifAst[2])[0]
   code = code
     .replace(ifAst[0], '')
     .replace(ifAst[1], '')
     .replace(ifAst[2], '')
-
   skipSpace(code) ? (code = skipSpace(code)[1]) : code
   if (code.startsWith(')')) return [value, code]
 
@@ -210,7 +208,7 @@ const valueParser = combinator([
 
 // Tested
 
-// console.log(valueParser('(if #t 1 2)'))
+console.log(valueParser('(if #f 1 2 )'))
 // console.log(valueParser('(<= 15 10)'))
 // console.log(valueParser('(+ 8 1 0 9 0)'))
 // console.log(valueParser('(+ 2 3 5)'))
@@ -224,7 +222,7 @@ const valueParser = combinator([
 // console.log(valueParser('(max 1 8 3 4 5)'))
 // console.log(valueParser('(+ (* 6 9) (/ 9 4) 9)'))
 // console.log(valueParser('(if (<= 1 1) (+ 2 2) (+ 1 1))'))
-console.log(valueParser('(if (< 1 2) (+ 6 9) (+ 9 4))'))
+// console.log(valueParser('(if (< 1 2) (+ 6 9) (+ 9 4))'))
 // console.log(valueParser('(if (> 1 2) (+ 6 9) (+ 9 4))'))
 // console.log(valueParser('(if (< 1 2) (if (< 2 1) (+ 1 1) (+ 3 3)) (+ 4 4))'))
 

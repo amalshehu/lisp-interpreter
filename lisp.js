@@ -70,10 +70,10 @@ const extractString = code => {
     : null
 }
 
-const extractBoolean = str => {
-  return str.startsWith('#f')
-    ? ['#f', str.slice(2)]
-    : str.startsWith('#t') ? ['#t', str.slice(2)] : null
+const extractBoolean = code => {
+  return code.startsWith('#f')
+    ? ['#f', code.slice(2)]
+    : code.startsWith('#t') ? ['#t', code.slice(2)] : null
 }
 
 const conditionSplitter = code => {
@@ -139,6 +139,7 @@ const checkValuesLength = results => {
     throw Error(`\x1b[31m${msg}\x1b[0m`)
   }
 }
+
 const lambdaSplitter = code => {
   let arr = []
   const re = /\((?:[^)(]+|\((?:[^)(]+|\([^)(]*\))*\))*\)/
@@ -156,14 +157,16 @@ const lambdaSplitter = code => {
   }
   return arr
 }
+
 const functionComposer = (args, body) => {
   // WIP
   splitBody = []
   body = body.slice(1, -1).split(' ')
-
+  args = args.replace(' ', ',')
   fn = `${args} => ${body[1]} ${body[0]} ${body[2]}`
   return eval(fn)
 }
+
 const extractLambda = code => {
   if (!code.startsWith('lambda')) return null
   // Extract variables
@@ -267,16 +270,19 @@ REPL.start({
 })
 
 // WIP
-// console.log(valueParser('(define square (lambda (x) (* x x)))')[0])
-// console.log(valueParser('(define n 12)'))
-// console.log(valueParser('(square n)')[0])
 
-// console.log(extractLambda('lambda (r) (* pi (* r r)))'))
+// console.log(valueParser('(define mul (lambda (x y) (* x y)))')[0])
+// console.log(valueParser('(mul 2 3)'))
 
 // console.log('(define circle-area (lambda (r) (* pi (* r r)))')
 // console.log('(circle-area (+ 5 5))')
 
 // Tested
+
+// console.log(valueParser('(define square (lambda (x) (* x x)))')[0])
+// console.log(valueParser('(define n 12)'))
+// console.log(valueParser('(square n)')[0])
+
 // console.log(valueParser('(define x 5)'))
 // console.log(valueParser('(* x x)'))
 
@@ -304,3 +310,4 @@ REPL.start({
 // console.log(
 //   valueParser('(if (< 10 20) (+ 1 1) (+ 3 3)) (if (< 10 20) (+ 8 1) (+ 5 3))')
 // )
+module.exports = valueParser

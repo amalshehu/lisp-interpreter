@@ -160,7 +160,11 @@ const lambdaSplitter = code => {
 }
 const functionComposer = (args, body) => {
   // WIP
-  fn = `${args} => ${body[]}`
+  splitBody = []
+  body = body.slice(1, -1).split(' ')
+
+  fn = `${args} => ${body[1]} ${body[0]} ${body[2]}`
+  return eval(fn)
 }
 const extractLambda = code => {
   if (!code.startsWith('lambda')) return null
@@ -170,6 +174,7 @@ const extractLambda = code => {
   // Eval body
   func = functionComposer(result[0], result[1])
   code = code.replace(result[0], '').replace(result[1], '')
+  skipSpace(code) ? (code = skipSpace(code)[1]) : code
   return [func, code]
 }
 
@@ -252,7 +257,7 @@ const valueParser = combinator([
 ])
 
 // WIP
-console.log(valueParser('(define square (lambda (x, y, z) (* x x)))'))
+// console.log(valueParser('(define square (lambda (x) (* x x)))'))
 
 // console.log(extractLambda('lambda (r) (* pi (* r r)))'))
 
@@ -260,8 +265,8 @@ console.log(valueParser('(define square (lambda (x, y, z) (* x x)))'))
 // console.log('(circle-area (+ 5 5))')
 
 // Tested
-// console.log(valueParser('(define x 5)'))
-// console.log(valueParser('(+ x 1000)'))
+console.log(valueParser('(define x 5)'))
+console.log(valueParser('(+ x 1000)'))
 
 // console.log(valueParser('(if #f 2 4 )'))
 // console.log(valueParser('#t'))

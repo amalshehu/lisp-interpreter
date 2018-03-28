@@ -193,9 +193,13 @@ const parseExpr = code => {
   code = code.slice(1)
   while (code[0] !== ')') {
     skipSpace(code) ? (code = skipSpace(code)[1]) : code
+    try {
     const result = valueParser(code)
     results.push(result[0])
     code = result[1]
+    } catch (error) {
+      throw Error(error)
+    }
     if (code.startsWith(')')) {
       // Error handler
       if (nativeFunctions.hasOwnProperty(results[0])) {

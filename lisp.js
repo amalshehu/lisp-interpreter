@@ -3,14 +3,6 @@ let ENV = {
 }
 let REPL = require('repl')
 
-REPL.start({
-  prompt: 'scheme λ >> ',
-  ignoreUndefined: true,
-  eval: (expr, context, filename, callback) => {
-    callback(null, valueParser(expr)[0])
-  }
-})
-
 const relational = (acc, cur, i, ar, op) => {
   let result = true
   let prev = ar[0]
@@ -58,7 +50,6 @@ const extractSymbol = code => {
     }
     return [preDefValue, code]
   }
-  return null
 }
 
 const extractOperator = code => {
@@ -194,9 +185,9 @@ const parseExpr = code => {
   while (code[0] !== ')') {
     skipSpace(code) ? (code = skipSpace(code)[1]) : code
     try {
-    const result = valueParser(code)
-    results.push(result[0])
-    code = result[1]
+      const result = valueParser(code)
+      results.push(result[0])
+      code = result[1]
     } catch (error) {
       throw Error(error)
     }
@@ -267,10 +258,18 @@ const valueParser = combinator([
   extractDefine
 ])
 
+REPL.start({
+  prompt: 'scheme λ >> ',
+  ignoreUndefined: true,
+  eval: (expr, context, filename, callback) => {
+    callback(null, valueParser(expr.trim())[0])
+  }
+})
+
 // WIP
 // console.log(valueParser('(define square (lambda (x) (* x x)))')[0])
-// console.log(valueParser('(define x 5)'))
-// console.log(valueParser('(square 5)')[0])
+// console.log(valueParser('(define n 12)'))
+// console.log(valueParser('(square n)')[0])
 
 // console.log(extractLambda('lambda (r) (* pi (* r r)))'))
 
@@ -279,7 +278,7 @@ const valueParser = combinator([
 
 // Tested
 // console.log(valueParser('(define x 5)'))
-// console.log(valueParser('(+ x 1000)'))
+// console.log(valueParser('(* x x)'))
 
 // console.log(valueParser('(if #f 2 4 )'))
 // console.log(valueParser('#t'))

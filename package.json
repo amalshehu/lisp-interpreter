@@ -1,0 +1,29 @@
+{
+  "name": "lisp-interpreter",
+  "version": "1.0.1",
+  "description": "Scheme Interpreter",
+  "main": "lisp.js",
+  "scripts": {
+    "test": "jest"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/amalshehu/lisp-interpreter.git"
+  },
+  "keywords": [
+    "Interpreter",
+    "lisp",
+    "dialect",
+    "scheme",
+    "js"
+  ],
+  "author": "Amal Shehu",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/amalshehu/lisp-interpreter/issues"
+  },
+  "homepage": "https://github.com/amalshehu/lisp-interpreter#readme",
+  "devDependencies": {
+    "jest": "^22.4.3"
+  }
+}

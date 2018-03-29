@@ -173,6 +173,9 @@ const lambdaObjectComposer = (args, body) => {
     fnBody: body,
     params: [],
     fetchAndUpdateArgs: function(argValues) {
+      for (const key in this.arguments) {
+        this.arguments[key] = argValues.shift()
+      }
       Object.keys(argValues).map(key => {
         this.arguments.hasOwnProperty(key)
           ? (this.arguments[key] = argValues[key])

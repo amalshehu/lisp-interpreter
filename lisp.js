@@ -158,13 +158,38 @@ const lambdaSplitter = code => {
   return arr
 }
 
-const functionComposer = (args, body) => {
+const lambdaObjectComposer = (args, body) => {
   // WIP
-  splitBody = []
-  body = body.slice(1, -1).split(' ')
-  args = args.replace(' ', ',')
-  fn = `${args} => ${body[1]} ${body[0]} ${body[2]}`
-  return eval(fn)
+  const lambda = {
+    arguments: args
+      .slice(1, -1)
+      .split(' ')
+      .reduce((obj, cur, i) => {
+        return {
+          ...obj,
+          [cur]: null
+        }
+      }, {}),
+    fnBody: body,
+    params: [],
+    fetchAndUpdateArgs: function(argValues) {
+      Object.keys(argValues).map(key => {
+        this.arguments.hasOwnProperty(key)
+          ? (this.arguments[key] = argValues[key])
+          : SyntaxError('Args not found')
+      })
+    },
+    compute: function(params) {
+      this.fetchAndUpdateArgs(params)
+      for (var key in this.arguments) {
+        this.fnBody = this.fnBody.replace(
+          new RegExp(`${key}`, 'gi'),
+          this.arguments[key]
+        )
+      }
+    }
+  }
+  return lambda
 }
 
 const extractLambda = code => {

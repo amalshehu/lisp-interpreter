@@ -9,7 +9,7 @@ const relational = (acc, cur, i, ar, op) => {
   if (!result) return false
   result = eval(`${prev} ${op} ${cur}`)
   prev = cur
-  return result ? true : false
+  return result ? '#t' : '#f'
 }
 
 const nativeFunctions = {

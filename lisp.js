@@ -106,9 +106,9 @@ const extractDefine = code => {
   let value = valueParser(code)
   if (value) {
     ENV[symbol] = value[0]
-    console.log(`value ${value[0]} assigned to ${symbol}`)
+    // console.log()
   }
-  return [value[0], value[1]]
+  return [`value ${value[0]} assigned to ${symbol}`, value[1]]
 }
 
 const extractIf = code => {

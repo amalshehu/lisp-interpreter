@@ -198,7 +198,7 @@ const extractLambda = code => {
   code = code.slice(6)
   result = lambdaSplitter(code)
   // Eval body
-  func = functionComposer(result[0], result[1])
+  func = lambdaObjectComposer(result[0], result[1])
   code = code.replace(result[0], '').replace(result[1], '')
   skipSpace(code) ? (code = skipSpace(code)[1]) : code
   return [func, code]

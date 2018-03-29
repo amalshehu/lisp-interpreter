@@ -39,17 +39,17 @@ const extractNum = code => {
 }
 
 const extractSymbol = code => {
-  const symbol = code.slice(0, code.indexOf(' '))
-  code = code.replace(symbol, '')
-  const preDefValue = ENV[symbol]
-  if (preDefValue) {
-    if (typeof preDefValue === 'function') {
-      skipSpace(code) ? (code = skipSpace(code)[1]) : code
-      let args = valueParser(code)
-      return [preDefValue(args[0]), args[1]]
-    }
-    return [preDefValue, code]
-  }
+  let match = code.match(/[a-zA-Z]+/)
+  return match ? [match[0], code.replace(/[a-zA-Z]+/, '')] : null
+  // const preDefValue = ENV[symbol]
+  // if (preDefValue) {
+  //   if (preDefValue.fnBody.startsWith('(')) {
+  //     skipSpace(code) ? (code = skipSpace(code)[1]) : code
+  //     let evaluated = valueParser(code)
+  //     return [preDefValue(args[0]), args[1]]
+  //   }
+  //   return [preDefValue, code]
+  // }
 }
 
 const extractOperator = code => {
@@ -276,6 +276,7 @@ const combinator = parsers => {
 
 const valueParser = combinator([
   parseExpr,
+  extractSymbol,
   extractLambda,
   extractSymbol,
   extractString,
@@ -286,15 +287,18 @@ const valueParser = combinator([
   extractDefine
 ])
 
-REPL.start({
-  prompt: 'scheme λ >> ',
-  ignoreUndefined: true,
-  eval: (expr, context, filename, callback) => {
-    callback(null, valueParser(expr.trim())[0])
-  }
-})
+// REPL.start({
+//   prompt: 'scheme λ >> ',
+//   ignoreUndefined: true,
+//   eval: (expr, context, filename, callback) => {
+//     callback(null, valueParser(expr.trim())[0])
+//   }
+// })
 
 // WIP
+
+// console.log(valueParser('(define square (lambda (x y) (* x x)))')[0])
+console.log(valueParser('(square 5)'))
 
 // console.log(valueParser('(define mul (lambda (x y) (* x y)))')[0])
 // console.log(valueParser('(mul 2 3)'))

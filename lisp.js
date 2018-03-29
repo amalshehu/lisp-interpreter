@@ -41,15 +41,6 @@ const extractNum = code => {
 const extractSymbol = code => {
   let match = code.match(/[a-zA-Z]+/)
   return match ? [match[0], code.replace(/[a-zA-Z]+/, '')] : null
-  // const preDefValue = ENV[symbol]
-  // if (preDefValue) {
-  //   if (preDefValue.fnBody.startsWith('(')) {
-  //     skipSpace(code) ? (code = skipSpace(code)[1]) : code
-  //     let evaluated = valueParser(code)
-  //     return [preDefValue(args[0]), args[1]]
-  //   }
-  //   return [preDefValue, code]
-  // }
 }
 
 const extractOperator = code => {
@@ -223,12 +214,24 @@ const parseExpr = code => {
       throw Error(error)
     }
     if (code.startsWith(')')) {
-      // Error handler
-      if (nativeFunctions.hasOwnProperty(results[0])) {
-        checkValuesLength(results)
-        // Returns evaluated values from results array.
-        return [evaluateExpr(results), code.slice(1)]
+      if (ENV[results[0]]) {
+        const preDefValue = ENV[results[0]]
+        if (preDefValue.fnBody.startsWith('(')) {
+          preDefValue.compute(results.slice(1))
+          code = preDefValue.fnBody
+          skipSpace(code) ? (code = skipSpace(code)[1]) : code
+          let evaluated = valueParser(code)
+          return [evaluated[0], evaluated[1]]
+        }
+        return [preDefValue, code]
       }
+      // Error handler
+      if (results[0])
+        if (nativeFunctions.hasOwnProperty(results[0])) {
+          checkValuesLength(results)
+          // Returns evaluated values from results array.
+          return [evaluateExpr(results), code.slice(1)]
+        }
     }
   }
   return [...results, code.slice(1)]
@@ -279,15 +282,14 @@ const combinator = parsers => {
 
 const valueParser = combinator([
   parseExpr,
-  extractSymbol,
+  extractIf,
+  extractDefine,
   extractLambda,
-  extractSymbol,
   extractString,
   extractNum,
   extractBoolean,
   extractOperator,
-  extractIf,
-  extractDefine
+  extractSymbol
 ])
 
 // REPL.start({
@@ -300,8 +302,10 @@ const valueParser = combinator([
 
 // WIP
 
-// console.log(valueParser('(define square (lambda (x y) (* x x)))')[0])
-console.log(valueParser('(square 5)'))
+// console.log(
+//   valueParser('(define square (lambda (x y z) (if (x < y) #t #f )))')[0]
+// )
+// console.log(valueParser('(square 1 2 3)')[0])
 
 // console.log(valueParser('(define mul (lambda (x y) (* x y)))')[0])
 // console.log(valueParser('(mul 2 3)'))

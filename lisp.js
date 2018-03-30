@@ -37,10 +37,16 @@ const extractNum = code => {
   let match = code.match(/^[-+]?[0-9]*\.?[0-9]+([eE][-+]?[0-9]+)?/)
   return match ? [parseFloat(match[0]), code.slice(match[0].length)] : null
 }
+const fetchNumberTypeValue = variable => {
+  const attribute = ENV[variable]
+  return attribute.type == 'number' ? attribute.value : variable
+}
 
 const extractSymbol = code => {
   let match = code.match(/[a-zA-Z]+/)
-  return match ? [match[0], code.replace(/[a-zA-Z]+/, '')] : null
+  return match
+    ? [fetchNumberTypeValue(match[0]), code.replace(/[a-zA-Z]+/, '')]
+    : null
 }
 
 const extractOperator = code => {

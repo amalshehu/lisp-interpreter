@@ -102,7 +102,7 @@ const extractDefine = code => {
   skipSpace(code) ? (code = skipSpace(code)[1]) : code
   let value = valueParser(code)
   if (value) {
-    ENV[symbol] = value[0]
+    ENV[symbol] = { value: value[0], type: typeof value[0] }
     // console.log()
   }
   return [`value ${value[0]} assigned to ${symbol}`, value[1]]
@@ -158,6 +158,7 @@ const lambdaSplitter = code => {
 const lambdaObjectComposer = (args, body) => {
   // WIP
   const lambda = {
+    type: 'function',
     arguments: args
       .slice(1, -1)
       .split(' ')

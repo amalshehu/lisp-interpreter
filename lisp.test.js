@@ -28,12 +28,12 @@ test('(- (+ 1 2 9 9) (* 3 4) 87) to equal -78', () => {
   expect(valueParser('(- (+ 1 2 9 9) (* 3 4) 87)')[0]).toBe(-78)
 })
 
-test('(define x 5) should assign value 5 to variable x.', () => {
-  expect(valueParser('(define x 5)')[0]).toBeDefined()
+test('(define a 5) should assign value 5 to variable a.', () => {
+  expect(valueParser('(define a 5)')[0]).toBeDefined()
 })
 
-test('(* x x) Use assigned value for computation.', () => {
-  expect(valueParser('(* x x)')[0]).toBe(25)
+test('(* a a) Use assigned value for computation.', () => {
+  expect(valueParser('(* a a)')[0]).toBe(25)
 })
 
 test('(if #f 2 4 ) to equal 4', () => {

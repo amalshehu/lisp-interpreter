@@ -220,9 +220,10 @@ const parseExpr = code => {
     } catch (error) {
       throw Error(error)
     }
-    if (code.startsWith(')')) {
+
+    if (code[0] === ')') {
       if (ENV[results[0]]) {
-        const preDefValue = ENV[results[0]]
+        const preDefValue = ENV[results[0]].value
         if (preDefValue.fnBody.startsWith('(')) {
           preDefValue.compute(results.slice(1))
           code = preDefValue.fnBody
@@ -231,14 +232,11 @@ const parseExpr = code => {
           return [evaluated[0], evaluated[1]]
         }
         return [preDefValue, code]
+      } else if (nativeFunctions.hasOwnProperty(results[0])) {
+        checkValuesLength(results)
+        // Returns evaluated values from results array.
+        return [evaluateExpr(results), code.slice(1)]
       }
-      // Error handler
-      if (results[0])
-        if (nativeFunctions.hasOwnProperty(results[0])) {
-          checkValuesLength(results)
-          // Returns evaluated values from results array.
-          return [evaluateExpr(results), code.slice(1)]
-        }
     }
   }
   return [...results, code.slice(1)]
@@ -277,7 +275,7 @@ const combinator = parsers => {
     let out
     for (let parser of parsers) {
       try {
-      out = parser(text)
+        out = parser(text)
       } catch (error) {
         const msg = `Scheme syntax is not valid`
         throw new SyntaxError(`\x1b[31m${msg}\x1b[0m`)
@@ -286,8 +284,6 @@ const combinator = parsers => {
         return out
       }
     }
-    // const msg = `execute: unbound symbol: "${text}"[]`
-    // throw Error(`\x1b[31m${msg}\x1b[0m`)
     return null
   }
 }
@@ -304,20 +300,18 @@ const valueParser = combinator([
   extractSymbol
 ])
 
-// REPL.start({
-//   prompt: 'scheme λ >> ',
-//   ignoreUndefined: true,
-//   eval: (expr, context, filename, callback) => {
-//     callback(null, valueParser(expr.trim())[0])
-//   }
-// })
+REPL.start({
+  prompt: 'scheme λ >> ',
+  ignoreUndefined: true,
+  eval: (expr, context, filename, callback) => {
+    callback(null, valueParser(expr.trim())[0])
+  }
+})
 
 // WIP
 
-// console.log(
-//   valueParser('(define square (lambda (x y z) (if (x < y) #t #f )))')[0]
-// )
-// console.log(valueParser('(square 1 2 3)')[0])
+// console.log(valueParser('(+ 1 2 ( 2 5) 10)')[0])
+// console.log(valueParser('((* 2 3 2))')[0])
 
 // console.log(valueParser('(define mul (lambda (x y) (* x y)))')[0])
 // console.log(valueParser('(mul 2 3)'))

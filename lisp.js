@@ -276,7 +276,12 @@ const combinator = parsers => {
     if (text === undefined) return null
     let out
     for (let parser of parsers) {
+      try {
       out = parser(text)
+      } catch (error) {
+        const msg = `Scheme syntax is not valid`
+        throw new SyntaxError(`\x1b[31m${msg}\x1b[0m`)
+      }
       if (out != null) {
         return out
       }

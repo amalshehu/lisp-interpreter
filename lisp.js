@@ -43,10 +43,14 @@ const fetchNumberTypeValue = variable => {
 }
 
 const extractSymbol = code => {
-  let match = code.match(/[a-zA-Z]+/)
-  return match
-    ? [fetchNumberTypeValue(match[0]), code.replace(/[a-zA-Z]+/, '')]
-    : null
+  let match = code.match(/[a-zA-Z0-9_-]+/)
+  const symbol = code.slice(0, code.indexOf(' '))
+  if (symbol.length != match[0].length) {
+    const msg = 'Violates naming convention rule'
+    throw new EvalError(`\x1b[31m${msg}\x1b[0m`)
+}
+  let fetchNumber = fetchNumberTypeValue(match[0])
+  return match ? [fetchNumber, code.slice(match[0].length)] : null
 }
 
 const extractOperator = code => {

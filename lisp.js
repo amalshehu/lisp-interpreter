@@ -39,7 +39,10 @@ const extractNum = code => {
 }
 const fetchNumberTypeValue = variable => {
   const attribute = ENV[variable]
-  return attribute.type == 'number' ? attribute.value : variable
+  if (attribute != undefined) {
+    return attribute.type == 'number' ? attribute.value : variable
+  }
+  return variable
 }
 
 const extractSymbol = code => {
@@ -48,7 +51,7 @@ const extractSymbol = code => {
   if (symbol.length != match[0].length) {
     const msg = 'Violates naming convention rule'
     throw new EvalError(`\x1b[31m${msg}\x1b[0m`)
-}
+  }
   let fetchNumber = fetchNumberTypeValue(match[0])
   return match ? [fetchNumber, code.slice(match[0].length)] : null
 }
@@ -222,7 +225,7 @@ const parseExpr = code => {
       results.push(result[0])
       code = result[1]
     } catch (error) {
-      throw Error(error)
+      throw EvalError('Debug last parser output.', error)
     }
 
     if (code[0] === ')') {
@@ -278,12 +281,12 @@ const combinator = parsers => {
     if (text === undefined) return null
     let out
     for (let parser of parsers) {
-      try {
-        out = parser(text)
-      } catch (error) {
-        const msg = `Scheme syntax is not valid`
-        throw new SyntaxError(`\x1b[31m${msg}\x1b[0m`)
-      }
+      // try {
+      out = parser(text)
+      // } catch (error) {
+      //   const msg = `Scheme syntax is not valid`
+      //   throw new SyntaxError(`\x1b[31m${msg}\x1b[0m`)
+      // }
       if (out != null) {
         return out
       }
@@ -304,23 +307,19 @@ const valueParser = combinator([
   extractSymbol
 ])
 
-REPL.start({
-  prompt: 'scheme λ >> ',
-  ignoreUndefined: true,
-  eval: (expr, context, filename, callback) => {
-    callback(null, valueParser(expr.trim())[0])
-  }
-})
+// REPL.start({
+//   prompt: 'scheme λ >> ',
+//   ignoreUndefined: true,
+//   eval: (expr, context, filename, callback) => {
+//     callback(null, valueParser(expr.trim())[0])
+//   }
+// })
 
 // WIP
 
-// console.log(valueParser('(+ 1 2 ( 2 5) 10)')[0])
-// console.log(valueParser('((* 2 3 2))')[0])
-
-// console.log(valueParser('(define mul (lambda (x y) (* x y)))')[0])
-// console.log(valueParser('(mul 2 3)'))
-
-// console.log('(define circle-area (lambda (r) (* pi (* r r)))')
-// console.log('(circle-area (+ 5 5))')
+// console.log(valueParser('(define circle-area (lambda (r) (* 3.14 r r)))'))
+// console.log(valueParser('(circle-area 10)'))
+// console.log(valueParser('(define a 500)'))
+// console.log(valueParser('(* a a)'))
 
 module.exports = valueParser

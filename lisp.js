@@ -261,11 +261,11 @@ const evaluateExpr = code => {
       case '-':
         return Number(`${key}${code[0]}`)
       case '+':
-        return code[0]
+        return Number(code[0])
       case '*':
-        return 1 * code[0]
+        return 1 * Number(code[0])
       case '/':
-        return 1 / code[0]
+        return 1 / Number(code[0])
       default:
         break
     }

@@ -122,7 +122,7 @@ const extractIf = code => {
   if (!code.startsWith('if')) return null
   code = code.slice(2)
   skipSpace(code) ? (code = skipSpace(code)[1]) : code
-  const ifAst = conditionSplitter(code)
+  const ifAst = conditionSplitter(code, 'if')
   let condition = valueParser(ifAst[0])[0]
   let value =
     (condition && condition != '#f') || condition === '#t'
@@ -147,19 +147,25 @@ const checkValuesLength = results => {
   }
 }
 
-const lambdaSplitter = code => {
+const conditionSplitter = (code, type) => {
+  // Splits if condition using regex into an array.
   let arr = []
   const re = /\((?:[^)(]+|\((?:[^)(]+|\([^)(]*\))*\))*\)/
-  let i = 2
+  const loopCount = {
+    if: 3,
+    lambda: 2
+  }
+  let i = loopCount[type]
   while (i != 0) {
     try {
+      // WIP
       skipSpace(code) ? (code = skipSpace(code)[1]) : code
       let m = code.startsWith('(') ? code.match(re) : code.match(/([^\s]+)/)
       arr.push(m[0])
       code = code.slice(m[0].length)
       i--
     } catch (error) {
-      throw SyntaxError('Invalid Lambda Syntax')
+      throw SyntaxError(`Invalid ${type} Syntax`)
     }
   }
   return arr
@@ -207,7 +213,7 @@ const extractLambda = code => {
   if (!code.startsWith('lambda')) return null
   // Extract variables
   code = code.slice(6)
-  result = lambdaSplitter(code)
+  result = conditionSplitter(code, 'lambda')
   // Eval body
   func = lambdaObjectComposer(result[0], result[1])
   code = code.replace(result[0], '').replace(result[1], '')

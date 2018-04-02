@@ -109,7 +109,10 @@ const extractDefine = code => {
   skipSpace(code) ? (code = skipSpace(code)[1]) : code
   let value = valueParser(code)
   if (value) {
-    ENV[symbol[0]] = { value: value[0], type: typeof value[0] }
+    ENV[symbol[0]] = {
+      value: value[0],
+      type: typeof value[0]
+    }
     // console.log()
   }
   return [`value ${value[0]} assigned to ${symbol[0]}`, value[1]]

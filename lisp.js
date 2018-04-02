@@ -5,10 +5,16 @@ let REPL = require('repl')
 
 const relational = (acc, cur, i, ar, op) => {
   let result = true
-  let prev = ar[i - 1]
   if (!result) return false
-  result = eval(`${prev} ${op} ${cur}`)
-  return result ? '#t' : '#f'
+  return evalLogical[op](ar[i - 1], cur) ? '#t' : '#f'
+}
+
+const evalLogical = {
+  '>': (a, b) => a > b,
+  '<': (a, b) => a < b,
+  '>=': (a, b) => a >= b,
+  '<=': (a, b) => a <= b,
+  '=': (a, b) => a == b
 }
 
 const nativeFunctions = {

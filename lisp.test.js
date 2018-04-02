@@ -39,6 +39,13 @@ test('(* a a) Use assigned value for computation.', () => {
 test('(if #f 2 4 ) to equal 4', () => {
   expect(valueParser('(if #f 2 4 )')[0]).toBe(4)
 })
+test('(if #t #t #f) to equal #t', () => {
+  expect(valueParser('(if #t #t #f )')[0]).toBe('#t')
+})
+
+test('(if #f #t #f) to equal #t', () => {
+  expect(valueParser('(if #f #t #f )')[0]).toBe('#f')
+})
 
 test('#t to equal #t', () => {
   expect(valueParser('#t')[0]).toBe('#t')

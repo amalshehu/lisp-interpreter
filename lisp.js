@@ -8,7 +8,6 @@ const relational = (acc, cur, i, ar, op) => {
   let prev = ar[i - 1]
   if (!result) return false
   result = eval(`${prev} ${op} ${cur}`)
-  prev = cur
   return result ? '#t' : '#f'
 }
 
@@ -78,26 +77,6 @@ const extractBoolean = code => {
   return code.startsWith('#f')
     ? ['#f', code.slice(2)]
     : code.startsWith('#t') ? ['#t', code.slice(2)] : null
-}
-
-const conditionSplitter = code => {
-  // Splits if condition using regex into an array.
-  let arr = []
-  const re = /\((?:[^)(]+|\((?:[^)(]+|\([^)(]*\))*\))*\)/
-  let i = 3
-  while (i != 0) {
-    try {
-      // WIP
-      skipSpace(code) ? (code = skipSpace(code)[1]) : code
-      let m = code.startsWith('(') ? code.match(re) : code.match(/([^\s]+)/)
-      arr.push(m[0])
-      code = code.slice(m[0].length)
-      i--
-    } catch (error) {
-      throw SyntaxError('Invalid IF Syntax')
-    }
-  }
-  return arr
 }
 
 const extractDefine = code => {
@@ -290,12 +269,12 @@ const combinator = parsers => {
     if (text === undefined) return null
     let out
     for (let parser of parsers) {
-      // try {
-      out = parser(text)
-      // } catch (error) {
-      //   const msg = `Scheme syntax is not valid`
-      //   throw new SyntaxError(`\x1b[31m${msg}\x1b[0m`)
-      // }
+      try {
+        out = parser(text)
+      } catch (error) {
+        const msg = `Scheme syntax is not valid`
+        throw new SyntaxError(`\x1b[31m${msg}\x1b[0m`)
+      }
       if (out != null) {
         return out
       }
@@ -316,15 +295,21 @@ const valueParser = combinator([
   extractSymbol
 ])
 
-// REPL.start({
-//   prompt: 'scheme λ >> ',
-//   ignoreUndefined: true,
-//   eval: (expr, context, filename, callback) => {
-//     callback(null, valueParser(expr.trim())[0])
-//   }
-// })
+REPL.start({
+  prompt: 'scheme λ >> ',
+  ignoreUndefined: true,
+  eval: (expr, context, filename, callback) => {
+    callback(null, valueParser(expr.trim())[0])
+  }
+})
 
 // WIP
+
+// console.log(valueParser('(define square (lambda (x y z)  (+ x y z))))'))
+// console.log(valueParser('(define x 10)'))
+// console.log(valueParser('(define y 10)'))
+// console.log(valueParser('(define z 10)'))
+// console.log(valueParser('(square x y z)'))
 
 // console.log(valueParser('(define circle-area (lambda (r) (* 3.14 r r)))'))
 // console.log(valueParser('(circle-area 10)'))

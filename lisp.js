@@ -5,7 +5,7 @@ let REPL = require('repl')
 
 const relational = (acc, cur, i, ar, op) => {
   let result = true
-  let prev = ar[0]
+  let prev = ar[i - 1]
   if (!result) return false
   result = eval(`${prev} ${op} ${cur}`)
   prev = cur
